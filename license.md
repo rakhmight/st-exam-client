@@ -1,0 +1,1 @@
+This software is a product, the copyright of which belongs to Diyor Rakhimov. The product is at the final stage of development. Distribution of the product is prohibited.
