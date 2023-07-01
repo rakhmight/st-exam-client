@@ -1,7 +1,8 @@
 export default {
     state: {
         userData: undefined,
-        isAuthorized: false
+        isAuthorized: false,
+        examToken: undefined
     },
     getters: {
         getUserData(state){
@@ -9,6 +10,9 @@ export default {
         },
         getAuthState(state){
             return state.isAuthorized
+        },
+        getExamToken(state){
+            return state.examToken
         }
     },
     mutations: {
@@ -17,6 +21,9 @@ export default {
         },
         setAuthState(state, value) {
             state.isAuthorized = value
+        },
+        setExamToken(state, value){
+            state.examToken = value
         }
     },
     actions: {

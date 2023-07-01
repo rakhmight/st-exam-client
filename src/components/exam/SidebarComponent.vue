@@ -5,7 +5,7 @@
                 <div class="map__title">
                     <div class="d-flex align-center mb-1">
                         <v-icon size="18">mdi-format-list-bulleted</v-icon>
-                        <span class="ml-1" style="font-size: 1.1em; font-weight: 300;">Questions</span>
+                        <span class="ml-1" style="font-size: 1.1em; font-weight: 300;">Вопросы</span>
                     </div>
                     <v-divider></v-divider>
                 </div>
@@ -17,23 +17,56 @@
                         <tr>
                             <th style="width: 25px"></th>
                             <th class="text-left" style="width: 30px; color: #dcdcdcd0">#</th>
-                            <th class="text-left" style="color: #dcdcdcd0; font-weight: 300;">Context</th>
+                            <th class="text-left" style="color: #dcdcdcd0; font-weight: 300;">Контекст ?-ов</th>
                         </tr>
                         </thead>
                     </v-table>
                     <div class="table-body">
                     <v-table
                     density="compact"
+                    v-if="step=='exam'"
                     >
                         <tbody>
-                        <tr>
-                            <td style="width: 25px; max-width: 25px;">
-                                <v-icon size="18">mdi-text</v-icon>
-                                <!-- <v-icon size="18">mdi-image-outline</v-icon>
-                                <v-icon size="18">mdi-selection-ellipse-arrow-inside</v-icon> -->
+                        <tr
+                        v-for="(question, i) in ticket.questions"
+                        :key="i"
+                        :style="currentQuestion==question.id ? 'background-color: #ffffff21': ''"
+                        @click="changeCurrentQuestion(question.id)"
+                        :class="`map-${question.id}`"
+                        class="map-item"
+                        >
+                            <td style="width: 25px; max-width: 25px;" v-if="answeredQuestions.indexOf(question.id)==-1">
+                                <v-tooltip location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" v-if="question.type=='basic-question'" size="18" :color="question.id==currentQuestion ? '#64b0ff' : ''">mdi-text</v-icon>
+                                    </template>
+                                    <span>простой вопрос</span>
+                                </v-tooltip>
+                                <v-tooltip location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" v-if="question.type=='question-with-images'" size="18" :color="question.id==currentQuestion ? '#64b0ff' : ''">mdi-image-outline</v-icon>
+                                    </template>
+                                    <span>вопрос с изображениями</span>
+                                </v-tooltip>
+                                <v-tooltip location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon v-bind="props" v-if="question.type=='question-with-field'" size="18" :color="question.id==currentQuestion ? '#64b0ff' : ''">mdi-selection-ellipse-arrow-inside</v-icon>
+                                    </template>
+                                    <span>вопрос с выбираемой областью</span>
+                                </v-tooltip>
                             </td>
-                            <td style="width: 25px; max-width: 30px;">100</td>
-                            <td style="max-width: 90px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;">Common!</td>
+                            <td style="width: 25px; max-width: 25px;" v-if="answeredQuestions.indexOf(question.id)!=-1">
+                                <v-tooltip location="top">
+                                    <template v-slot:activator="{ props }">
+                                        <v-icon size="18" color="#64b0ff" v-bind="props">mdi-check-circle-outline</v-icon>
+                                    </template>
+                                    <span>отвечено</span>
+                                </v-tooltip>
+                            </td>
+                            <td style="width: 25px; max-width: 30px;">{{ i+1 }}</td>
+                            <td style="max-width: 90px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                                {{ getExamLanguage=='ru' ? question.context.questionCtx.ru : getExamLanguage=='eng' ? question.context.questionCtx.eng : getExamLanguage=='custom' ? question.context.questionCtx.custom : getExamLanguage=='uz_k' ? question.context.questionCtx.uz_k : question.context.questionCtx.uz_l }}
+                            </td>
                         </tr>
                         </tbody>
                     </v-table>
@@ -42,36 +75,83 @@
             </div>
 
             <div class="btns d-flex flex-column" style="gap:15px;">
-                <v-btn
+                <!-- <v-btn
                 density="compact"
                 width="100%"
                 color="#444"
+                :disabled="blockActionBtns"
                 >
-                <v-icon size="15">mdi-pause-circle-outline</v-icon>
-                <span class="ml-1" style="font-size: 0.9em;">Pause exam</span>
-                </v-btn>
-                <v-btn
-                density="compact"
-                width="100%"
-                color="var(--main-color)"
-                >
-                <v-icon size="15">mdi-send</v-icon>
-                <span class="ml-1" style="font-size: 0.9em;">Turn in work</span>
-                </v-btn>
+                    <v-icon size="15">mdi-pause-circle-outline</v-icon>
+                    <span class="ml-1" style="font-size: 0.9em;">Приостановить экзамен</span>
+                </v-btn> -->
+
+                <result-dialog
+                :sendAnswers="sendAnswers"
+                :blockActionBtns="blockActionBtns"
+                :showResultDialog="showResultDialog"
+                :exitExam="exitExam"
+                :examResults="examResults"
+                />
             </div>
         </div>
 
         <div class="info" style="margin-bottom: 90px;">
             <div class="d-flex align-center">
                 <v-icon size="18" color="#dcdcdcd0">mdi-information-outline</v-icon>
-                <span class="ml-1" style="color: #dcdcdcd0">Examiner:</span>
+                <span class="ml-1" style="color: #dcdcdcd0">Экзаменируемый:</span>
             </div>
-            <div>
-                <span>Rakhimov Diyor Nurullaevich</span>
-            </div>
+            
+            <v-tooltip>
+                <template v-slot:activator="{ props }">
+                    <div v-bind="props" style="cursor: help;max-width: 220px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                        <span>{{ `${getUserData.userData.bio.lastName} ${getUserData.userData.bio.firstName} ${getUserData.userData.bio.patronymic}` }}</span>
+                    </div>
+                </template>
+                <span>{{ `${getUserData.userData.bio.lastName} ${getUserData.userData.bio.firstName} ${getUserData.userData.bio.patronymic}` }}</span>
+            </v-tooltip>
         </div>
     </div>
 </template>
+
+<script>
+import ResultDialog from '@/components/exam/ResultDialog.vue'
+import { mapGetters } from 'vuex';
+
+export default {
+    props:{
+        ticket: Object,
+        answers: Array,
+        getExamLanguage: String,
+        currentQuestion: Number,
+        changeCurrentQuestion: Function,
+        answeredQuestions: Array,
+        step: String,
+        blockActionBtns: Boolean,
+        sendAnswers: Function,
+        showResultDialog: Boolean,
+        exitExam: Function,
+        examResults: Object || undefined
+    },
+    components:{
+        ResultDialog
+    },
+    computed: mapGetters(['getUserData']),
+    methods:{
+        mapOrient(){
+            const target = document.querySelector(`.map-${this.currentQuestion}`)
+            if(target){
+                target.scrollIntoView({behavior: "smooth"})
+            }
+        }
+    },
+    watch:{
+        currentQuestion(){
+            this.mapOrient()
+        }
+    }
+}
+</script>
+
 
 <style scoped>
 ::-webkit-scrollbar {
@@ -95,6 +175,10 @@
     justify-content: space-between;
     padding: 30px 20px;
     gap: 50px;
+}
+
+.map-item{
+    scroll-margin-top:120px;
 }
 
 .v-table{

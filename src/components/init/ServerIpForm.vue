@@ -281,7 +281,7 @@ export default {
                 await makeReq(`${this.authServerIp}/api/ping`, 'GET')
                 .then((data)=>{
                     if(data.statusCode==200){
-                        if(data.data.server=='sa-auth-server'){
+                        if(data.data.server=='st-auth-server'){
                             console.log('[SA-Auth] Ok.');
                         } else {
                             this.error.value = true

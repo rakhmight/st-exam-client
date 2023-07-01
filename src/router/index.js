@@ -4,6 +4,7 @@ import InitializationView from '@/views/InitializationView'
 import AuthView from '@/views/AuthView'
 import CoordinatorView from '@/views/CoordinatorView'
 import ExaminationView from '@/views/ExaminationView'
+import PrepareView from '@/views/PrepareView'
 
 const routes = [
   {
@@ -20,6 +21,11 @@ const routes = [
     path: '/coordinator',
     name: 'coordinator',
     component: CoordinatorView
+  },
+  {
+    path: '/prepare',
+    name: 'prepare',
+    component: PrepareView
   },
   {
     path: '/exam',

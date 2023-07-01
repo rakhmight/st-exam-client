@@ -1,6 +1,27 @@
 const { defineConfig } = require('@vue/cli-service')
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
+
 module.exports = defineConfig({
   transpileDependencies: true,
+
+  configureWebpack:{
+    // resolve: {
+    //   fallback: {
+    //     "path": require.resolve('path-browserify'),
+    //   },
+    // },
+    // node: {
+    //   // provides the global variable named "global"
+    //   //global: true,
+      
+    //   // provide __filename and __dirname global variables
+    //   //__filename: true,
+    //   //__dirname: true,
+    // },
+    plugins:[
+      new NodePolyfillPlugin()
+    ]
+  },
 
   devServer:{
     port:7700,

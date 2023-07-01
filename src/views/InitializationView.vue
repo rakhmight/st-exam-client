@@ -8,24 +8,8 @@
             class="d-flex flex-column justify-center align-center"
             v-if="step=='initialization'"
             >
-                <div style="position: relative;">
-                    <div style="position: absolute; top:30px; left: 30px">
-                        <v-img
-                        src="@/assets/media/logo.png"
-                        width="90px"
-                        >
-                        </v-img>
-                    </div>
 
-                    <v-progress-circular
-                    :size="150"
-                    :width="3"
-                    color="var(--main-color)"
-                    indeterminate
-                    ></v-progress-circular>
-                </div>
-                
-                    
+                <spinner-component/>
 
                 <div style="height: 40px; position: absolute; bottom:40px;" class="d-flex flex-column justify-center">
                     <div v-if="initStep=='checkParams'" style>
@@ -90,6 +74,7 @@ import ServerIpForm from '@/components/init/ServerIpForm'
 import BindForm from '@/components/init/BindForm'
 import { mapMutations, mapGetters } from 'vuex'
 import makeReq from '@/utils/makeReq'
+import SpinnerComponent from '@/components/SpinnerComponent'
 
 export default {
     data(){
@@ -114,9 +99,9 @@ export default {
             blockIntervals: false
         }
     },
-    computed: mapGetters(['getAdminServerIP', 'getExamServerIP', 'getAuthServerIP', 'getSocketCode', 'getDeviceID']),
+    computed: mapGetters(['getAdminServerIP', 'getExamServerIP', 'getAuthServerIP', 'getSocketCode', 'getDeviceID', 'getUserData']),
     methods:{
-        ...mapMutations(['setAdminServerIP', 'setExamServerIP', 'setAuthServerIP', 'setSocketCode', 'setDeviceID', 'setInitializationProcess', 'setAuthState', 'setUserData']),
+        ...mapMutations(['setAdminServerIP', 'setExamServerIP', 'setAuthServerIP', 'setSocketCode', 'setDeviceID', 'setInitializationProcess', 'setAuthState', 'setUsersList', 'setDepartments', 'setSubjects']),
 
         changeStep(step){
             this.blockIntervals = true
@@ -205,9 +190,9 @@ export default {
         },
 
         async handShakeWithAuthServer(){
-            console.log('Hand shake with SA-Auth');
+            console.log('Hand shake with ST-Auth');
             await makeReq(`${this.getAuthServerIP}/api/ping`, 'GET')
-            .then((data)=>{
+            .then(async (data)=>{
                 if(data.statusCode == 200){
                     if(this.authServerInterval){
                         clearInterval(this.authServerInterval)
@@ -215,18 +200,38 @@ export default {
                         this.problems.value = false
                     }
 
-                    if(data.data.server!='sa-auth-server'){
+                    console.log(data)
+                    if(data.data.server!='st-auth-server'){
                         this.setAuthServerIP(undefined)
                         localStorage.removeItem('st-auth-server')
                         this.step = 'servers-hand-shake'
                     } else {
-                        console.log('[SA-Auth] Ok.');
+                        console.log('[ST-Auth] Ok.');
 
                         setTimeout(()=>{
                             this.initStep = 'checkSocket'
 
                             this.checkSocket()
+                            this.getData()
                         },2000)
+
+                        // Проверка актуальности данных пользователя (если есть)
+                        if(this.getUserData){
+                            await makeReq(`${this.getAuthServerIP}/api/users/check`, 'POST', {
+                                data: {
+                                    id: this.getUserData.id,
+                                    token: this.getUserData.token.key
+                                }
+                            })
+                            .then((data)=>{
+                                if(data.status == 404){
+                                    this.setUserData(undefined)
+                                    localStorage.removeItem('userData')
+                                } else if(data.status == 200){
+                                    this.setAuthState(true)
+                                }
+                            })
+                        }
                     }
                 }
             })
@@ -289,6 +294,43 @@ export default {
                     },5000)
                 }
             })
+        },
+
+        async getData(){
+            await makeReq(`${this.getAuthServerIP}/api/user/get`, 'POST',{
+                auth:{
+                    requesting: 'device'
+                },
+                data: {
+                    device: {
+                        code: this.getSocketCode,
+                        id: this.getDeviceID
+                    }
+                }
+            })
+            .then(res=>{
+                this.setUsersList(res.data.usersList)
+            })
+
+            await makeReq(`${this.getAdminServerIP}/api/subjects/get`, 'POST', {
+                deviceData: {
+                    code: this.getSocketCode,
+                    id: this.getDeviceID
+                }
+            })
+            .then((res)=>{
+                this.setSubjects(res.data.subjects)
+            })
+
+            await makeReq(`${this.getAdminServerIP}/api/departments/get`, 'POST', {
+                deviceData: {
+                    code: this.getSocketCode,
+                    id: this.getDeviceID
+                }
+            })
+            .then((res)=>{
+                this.setDepartments(res.data.departments)
+            })
         }
     },
     mounted(){
@@ -312,14 +354,6 @@ export default {
         const authServerIp = localStorage.getItem('sa-auth-server')
         const socketCode= localStorage.getItem('socket-code')
         const deviceID = localStorage.getItem('device-id')
-
-        // Проверка, есть ли пользователь в FS (в случае аварийного откл. света)
-        const userData = localStorage.getItem('userData')
-
-        if(userData){
-            this.setAuthState(true)
-            this.setUserData(JSON.parse(userData))
-        }
 
         // Проверка зависимостей
         if(adminServerIp){
@@ -367,7 +401,8 @@ export default {
     },
     components:{
         ServerIpForm,
-        BindForm
+        BindForm,
+        SpinnerComponent
     }
 }
 </script>

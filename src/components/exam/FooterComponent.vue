@@ -7,18 +7,25 @@
                 <div class="d-flex align-center" style="gap: 50px">
                     <div class="d-flex align-center">
                         <v-icon size="18" color="#dcdcdcd0">mdi-ticket-outline</v-icon>
-                        <span class="ml-1"><span style="color: #dcdcdcd0">Ticket:</span> 12</span>
+                        <span class="ml-1"><span style="color: #dcdcdcd0">Билет:</span> {{ ticket.ticketNumber }}</span>
                     </div>
-                    <div class="d-flex align-center">
-                        <v-icon size="19" color="#dcdcdcd0">mdi-alpha-t-box-outline</v-icon>
-                        <span class="ml-1"><span style="color: #dcdcdcd0">Theme:</span> Some theme</span>
-                    </div>
+                    
+                    <v-tooltip>
+                        <template v-slot:activator="{ props }">
+                            
+                            <div v-bind="props" style="cursor: help; max-width: 600px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;" class="d-flex align-center">
+                                <v-icon size="19" color="#dcdcdcd0">mdi-alpha-t-box-outline</v-icon>
+                                <span class="ml-1"><span style="color: #dcdcdcd0">Тема вопроса:</span> {{ getThemeName(theme) }}</span>
+                            </div>
+                        </template>
+                        <span>{{ getThemeName(theme) }}</span>
+                    </v-tooltip>
                 </div>
 
-                <div class="d-flex align-center" style="gap:20px">
+                <div class="d-flex align-center" style="gap:20px" v-if="getCurrentExam.complex[0].params.questionTime!==null">
                     <div class="d-flex align-center">
                         <v-icon size="18" color="#dcdcdcd0">mdi-clock-time-eight-outline</v-icon>
-                        <span class="ml-1"><span style="color: #dcdcdcd0">Question time:</span> 0:40</span>
+                        <span class="ml-1"><span style="color: #dcdcdcd0">Время вопроса:</span> 0:40</span>
                     </div>
                     <div>
                         <div class="main-line">
@@ -30,6 +37,44 @@
         </div>
     </div>
 </template>
+
+<script>
+import { getTheme } from '@/utils/getInfo'
+import { mapGetters } from 'vuex'
+
+export default {
+    props:{
+        ticket: Object,
+        getCurrentExam: Object,
+        currentQuestion: Number
+    },
+    data(){
+        return {
+            theme: undefined
+        }
+    },
+    computed: mapGetters(['getSubjects']),
+    methods:{
+        setCurrentTheme(){
+            const target = this.ticket.questions.find(question=>question.id==this.currentQuestion)
+            this.theme = target.theme
+        },
+
+        getThemeName(id){
+            return getTheme(this.ticket.subject, id, this.getSubjects)
+        }
+    },
+    watch:{
+        currentQuestion(){
+            this.setCurrentTheme()
+        }
+    },
+    mounted(){
+        this.setCurrentTheme()
+    }
+}
+</script>
+
 
 <style scoped>
 .footer{
