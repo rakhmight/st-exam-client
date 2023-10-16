@@ -14,19 +14,19 @@
                 <div style="height: 40px; position: absolute; bottom:40px;" class="d-flex flex-column justify-center">
                     <div v-if="initStep=='checkParams'" style>
                         <v-icon size="18" color="var(--main-color)">mdi-lightning-bolt</v-icon>
-                        <span class="ml-1">Проверка зависимостей{{ dotes.ctx }}</span>
+                        <span class="ml-1">{{ currentLang.initView[0] }}{{ dotes.ctx }}</span>
                     </div>
                     <div v-if="initStep=='handShakeWithServers'" style>
                         <v-icon size="18" color="var(--main-color)">mdi-server-network</v-icon>
-                        <span class="ml-1">Подключение к серверам{{ dotes.ctx }}</span>
+                        <span class="ml-1">{{ currentLang.initView[1] }}{{ dotes.ctx }}</span>
                     </div>
                     <div v-if="initStep=='checkSocket'" style>
                         <v-icon size="18" color="var(--main-color)">mdi-link-variant</v-icon>
-                        <span class="ml-1">Проверка сокета клиента{{ dotes.ctx }}</span>
+                        <span class="ml-1">{{ currentLang.initView[2] }}{{ dotes.ctx }}</span>
                     </div>
                     <div v-if="initStep=='success'" style>
                         <v-icon size="18" color="var(--main-color)">mdi-check</v-icon>
-                        <span class="ml-1">Запуск клиента</span>
+                        <span class="ml-1">{{ currentLang.initView[3] }}</span>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                     @click="changeStep('servers-hand-shake')"
                     width="250px"
                     >
-                        <span style="color: #000">Сменить IP-адреса</span>
+                        <span style="color: #000">{{ currentLang.initView[4] }}</span>
                     </v-btn>
                 </div>
             </div>
@@ -99,7 +99,7 @@ export default {
             blockIntervals: false
         }
     },
-    computed: mapGetters(['getAdminServerIP', 'getExamServerIP', 'getAuthServerIP', 'getSocketCode', 'getDeviceID', 'getUserData']),
+    computed: mapGetters(['getAdminServerIP', 'getExamServerIP', 'getAuthServerIP', 'getSocketCode', 'getDeviceID', 'getUserData', 'getUsersList', 'currentLang']),
     methods:{
         ...mapMutations(['setAdminServerIP', 'setExamServerIP', 'setAuthServerIP', 'setSocketCode', 'setDeviceID', 'setInitializationProcess', 'setAuthState', 'setUsersList', 'setDepartments', 'setSubjects']),
 
@@ -144,7 +144,7 @@ export default {
                 console.error('Error when shaking hands with the management server:', error)
                 this.problems.value = true
                 this.problems.type = 'servers'
-                this.problems.msg = 'Не удаётся подключиться к управляющему серверу. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов'
+                this.problems.msg = this.currentLang.initView[5]
 
                 if(!this.adminServerInterval && !this.blockIntervals){
                     this.adminServerInterval = setInterval(()=>{
@@ -179,8 +179,7 @@ export default {
                 console.error('Error when shaking hands with the exam server:', error)
                 this.problems.value = true
                 this.problems.type = 'servers'
-                this.problems.msg = 'Не удаётся подключиться к раздающему серверу. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов'
-
+                this.problems.msg = this.currentLang.initView[6]
                 if(!this.examServerInterval && !this.blockIntervals){
                     this.examServerInterval = setInterval(()=>{
                         this.handShakeWithExamServer()
@@ -239,7 +238,7 @@ export default {
                 console.error('Error when shaking hands with the auth server:', error)
                 this.problems.value = true
                 this.problems.type = 'servers'
-                this.problems.msg = 'Не удаётся подключиться к серверу аутентификации. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов'
+                this.problems.msg = this.currentLang.initView[7]
 
                 if(!this.authServerInterval && !this.blockIntervals){
                     this.authServerInterval = setInterval(()=>{
@@ -286,7 +285,7 @@ export default {
                 console.error('Error when cheked devise to socket connection with admin-server:', error)
                 this.problems.value = true
                 this.problems.type = 'socket-check'
-                this.problems.msg = 'Не удаётся подключиться к управляющему серверу для проверки клиента. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов'
+                this.problems.msg = this.currentLang.initView[8]
 
                 if(!this.sockedCheckInterval && !this.blockIntervals){
                     this.sockedCheckInterval = setInterval(()=>{
@@ -297,20 +296,20 @@ export default {
         },
 
         async getData(){
-            await makeReq(`${this.getAuthServerIP}/api/user/get`, 'POST',{
-                auth:{
-                    requesting: 'device'
-                },
-                data: {
-                    device: {
-                        code: this.getSocketCode,
-                        id: this.getDeviceID
-                    }
-                }
-            })
-            .then(res=>{
-                this.setUsersList(res.data.usersList)
-            })
+            // await makeReq(`${this.getAuthServerIP}/api/user/get`, 'POST',{
+            //     auth:{
+            //         requesting: 'device'
+            //     },
+            //     data: {
+            //         device: {
+            //             code: this.getSocketCode,
+            //             id: this.getDeviceID
+            //         }
+            //     }
+            // })
+            // .then(res=>{
+            //     this.setUsersList(res.data.usersList)
+            // })
 
             await makeReq(`${this.getAdminServerIP}/api/subjects/get`, 'POST', {
                 deviceData: {
@@ -330,6 +329,22 @@ export default {
             })
             .then((res)=>{
                 this.setDepartments(res.data.departments)
+            })
+            
+            await makeReq(`${this.getAdminServerIP}/api/exams/get-users-params`, 'POST',{
+                deviceData: {
+                    code: this.getSocketCode,
+                    id: this.getDeviceID
+                }
+            })
+            .then(res=>{
+                const usersParams = []
+                res.data.usersParamsList.map(up => {
+                    usersParams.push(...up.usersParams)
+                })
+
+                this.setUsersList(usersParams)
+                console.log(this.getUsersList)
             })
         }
     },

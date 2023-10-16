@@ -5,17 +5,18 @@
 
             <div class="mt-5" v-if="examsEmpty">
                 <v-icon size="18" color="error">mdi-cancel</v-icon>
-                <span style="color: var(--red-color)" class="ml-1">У вас нет активных экзаменов</span>
+                <span style="color: var(--red-color)" class="ml-1">{{ currentLang.coordinatorView[0] }}</span>
             </div>
         </div>
 
         <div class="exams" v-if="step=='choise-exam'">
             <exam-card
-            v-for="(exam, i) in getExams"
-            :key="i"
+            v-for="(exam) in getExams"
+            :key="exam.id"
             :exam="exam"
             :diniedExam="diniedExam"
             :launchPrepareProcess="launchPrepareProcess"
+            :autoStartTest="autoStartTest"
             />
         </div>
 
@@ -24,7 +25,7 @@
         </div>
 
         <div class="exam-dinied d-flex align-center" v-if="examDinied.status">
-            <div class="d-flex align-center">
+            <div class="d-flex align-center ml-10">
                 <v-icon>mdi-cancel</v-icon>
                 <span class="ml-1">{{ examDinied.msg }}</span>
             </div>
@@ -47,10 +48,12 @@ export default {
                 msg: undefined
             },
             diniedExamTimeout: undefined,
-            examsEmpty: false
+            examsEmpty: false,
+
+            autoStartTest: undefined
         }
     },
-    computed: mapGetters(['getUserData', 'getInitializationProcess', 'getAdminServerIP', 'getExams', 'getSubjects', 'getCurrentTickets']),
+    computed: mapGetters(['getUserData', 'getInitializationProcess', 'getAdminServerIP', 'getExams', 'getSubjects', 'getCurrentTickets', 'currentLang']),
     methods:{
         ...mapMutations(['setUserData', 'setExams', 'setAuthState']),
 
@@ -125,6 +128,11 @@ export default {
                         if(userExams.length){
                             this.setExams(userExams)
                             console.log(this.getExams);
+
+                            // авто старт тест если он 1
+                            if(userExams.length == 1) {
+                                this.autoStartTest = this.getExams[0].id
+                            }
                         } else {
                             this.logout()
                         }

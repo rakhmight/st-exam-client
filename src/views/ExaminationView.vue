@@ -37,6 +37,8 @@
             :blockSavingProcess="blockSavingProcess"
             :savingsClone="savingsClone"
             :switchAnswerCloneState="switchAnswerCloneState"
+            :previewQuestion="previewQuestion"
+            :nextQuestion="nextQuestion"
             />
 
             <div class="pause" v-if="step=='pause'">
@@ -53,14 +55,14 @@
                     style="overflow: hidden;"
                     ></v-progress-circular>
                 </div>
-                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">экзамен остановлен администратором</span>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[0] }}</span>
             </div>
 
             <div class="timeout" v-if="step=='timeout'">
                 <div>
                     <v-img width="100px" src="@/assets/media/sandglass.png"></v-img>
                 </div>
-                <span class="mt-7" style="color:var(--red-color); text-transform:uppercase; font-weight: 500;">время сдачи экзамена вышло</span>
+                <span class="mt-7" style="color:var(--red-color); text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[1] }}</span>
             </div>
 
             <div class="send" v-if="step=='send'">
@@ -77,7 +79,7 @@
                     style="overflow: hidden;"
                     ></v-progress-circular>
                 </div>
-                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">Отпрвка ответов на проверку..</span>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[2] }}</span>
             </div>
         </div>
 
@@ -126,10 +128,12 @@ export default {
             savingAvaible: undefined,
             blockSavingProcess: true,
             savingsClone: [],
-            exitClaim: false
+            exitClaim: false,
+
+            blockSend: false
         }
     },
-    computed: mapGetters(['getAuthState', 'getExamState', 'getCurrentTickets', 'getCurrentExam', 'getExamLanguage', 'getExamServerIP', 'getExamToken', 'getCurrentExamID', 'getUserData', 'getCurrentSaving', 'getSavesCounter', 'getAdminServerIP', 'getExams', 'getCurrentModuleExam', 'getCurrentExamsList']),
+    computed: mapGetters(['getAuthState', 'getExamState', 'getCurrentTickets', 'getCurrentExam', 'getExamLanguage', 'getExamServerIP', 'getExamToken', 'getCurrentExamID', 'getUserData', 'getCurrentSaving', 'getSavesCounter', 'getAdminServerIP', 'getExams', 'getCurrentModuleExam', 'getCurrentExamsList', 'currentLang']),
     components: {
         HeaderComponent,
         FooterComponent,
@@ -599,8 +603,8 @@ export default {
                 }
 
                 if(!this.getCurrentModuleExam.params.changeAnswerPossibility){
-                    const questioTarget = this.ticket.questions.find(q => q.id == questionID)
-                    if(this.answeredQuestions.length == this.answers.length && !questioTarget.multipleAnswers){
+                    const questionTarget = this.ticket.questions.find(q => q.id == questionID)
+                    if(this.answeredQuestions.length == this.answers.length && !questionTarget.multipleAnswers){
                         this.sendAnswers()
                     }
                 }
@@ -608,88 +612,97 @@ export default {
         },
 
         async sendAnswers(step){
-            // остановка времени
-            const stopTime = Date.now()
+            if(!this.blockSend){
 
-            // Добавление в userActions
-            this.actionHandler('finish', { timestamp: stopTime })
+                // block send
+                this.blockSend = true
 
-            if(this.timer!==null){
-                clearInterval(this.timerInterval)
-            }
-            this.blockActionBtns = true
+                // остановка времени
+                const stopTime = Date.now()
 
-            if(step=='send'){
-                this.step='send'
-                console.log('Send!');
-            } else if(step=='timeout'){
-                this.step = 'timeout'
-                console.log('Time over!');
-            }
+                // Добавление в userActions
+                this.actionHandler('finish', { timestamp: stopTime })
 
-            setTimeout(async ()=>{
-                // запуск модального окна
-                this.showResultDialog = true
-            },1000)            
+                this.clearAllProcess()
+                this.blockActionBtns = true
 
-            // отправка ответа на сервер
-            await makeReq(`${this.getExamServerIP}/api/exam/handlework`, 'POST', {
-                auth: {
-                    id: this.getUserData.authData.id,
-                    token: this.getExamToken,
-                },
-                exam: {
-                    examID: this.getCurrentExamID,
-                    answers: this.answers,
-                    isComplex: this.getCurrentExam.isComplex,
-                    subject: this.ticket.subject,
-                    ticketID: this.ticket.ticketNumber
+                if(step=='send'){
+                    this.step='send'
+                    console.log('Send!');
+                } else if(step=='timeout'){
+                    this.step = 'timeout'
+                    console.log('Time over!');
                 }
-            })
-            .then(async (data)=>{
-                console.log(data);
-                this.examResults = data.data.result
 
-                // Отправка результатов в админ сервер
-                await makeReq(`${this.getAdminServerIP}/api/exams/finishexam`, 'POST', {
+                setTimeout(async ()=>{
+                    // запуск модального окна
+                    this.showResultDialog = true
+                },1000)            
+
+                // отправка ответа на сервер
+                await makeReq(`${this.getExamServerIP}/api/exam/handlework`, 'POST', {
                     auth: {
                         id: this.getUserData.authData.id,
-                        token: this.getUserData.authData.token.key,
+                        token: this.getExamToken,
                     },
-                    data:{
-                        exam:{
-                            examID: this.getCurrentExamID,
-                            subject: this.ticket.subject,
-                            residualTime: this.timer,
-                            startTime: this.startTime
-                        },
-                        results: data.data.result,
-                        actions: this.userActions
+                    exam: {
+                        examID: this.getCurrentExamID,
+                        answers: this.answers,
+                        isComplex: this.getCurrentExam.isComplex,
+                        subject: this.ticket.subject,
+                        ticketID: this.ticket.ticketNumber
                     }
                 })
-                .then((response)=>{
-                    // удаление сохранения
-                    this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
-                        {
-                            type: 'deleteSaving',
-                            ctx: {
-                                id: this.getCurrentSaving
-                            }
+                .then(async (data)=>{
+                    console.log(data);
+                    this.examResults = data.data.result
+
+                    // Отправка результатов в админ сервер
+                    await makeReq(`${this.getAdminServerIP}/api/exams/finishexam`, 'POST', {
+                        auth: {
+                            id: this.getUserData.authData.id,
+                            token: this.getUserData.authData.token.key,
+                        },
+                        data:{
+                            exam:{
+                                examID: this.getCurrentExamID,
+                                subject: this.ticket.subject,
+                                residualTime: this.timer,
+                                startTime: this.startTime
+                            },
+                            results: data.data.result,
+                            actions: this.userActions
                         }
-                    )))
+                    })
+                    .then((response)=>{
+                        // удаление сохранения
+                        this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                            {
+                                type: 'deleteSaving',
+                                ctx: {
+                                    id: this.getCurrentSaving
+                                }
+                            }
+                        )))
 
-                    console.log(response);
+                        console.log(response);
+                    })
+
                 })
+                .then(()=>{
+                    if(this.getCurrentModuleExam.params.showResults && this.getCurrentModuleExam.params.resultDisplayTime !== null && typeof this.getCurrentModuleExam.params.resultDisplayTime == 'number'){
+                        setTimeout(()=>{
+                            this.exitExam()
+                        }, this.getCurrentModuleExam.params.resultDisplayTime * 1000)
+                    }
 
-            })
-            .then(()=>{
-                // setTimeout(()=>{
-                //     this.exitExam()
-                // }, 60000)
-            })
-            .catch(error=>{
-                console.error(error)
-            })
+                    if(!this.getCurrentModuleExam.params.showResults) this.exitExam()
+                })
+                .catch(error=>{
+                    console.error(error)
+                })
+        
+            }
         },
 
         exitExam(){
@@ -882,15 +895,15 @@ export default {
             }
         },
 
-        focusedOnAnswer(multiple){
+        focusedOnAnswer(){
             const answerDiv = document.querySelector(`.answer-${this.currentAnswer}`)
             if(answerDiv){
                 const answer = answerDiv.querySelector('input')
                 answer.focus()
 
-                if(!multiple){
-                    answer.click()
-                }
+                // if(!multiple){
+                //     answer.click()
+                // }
             }
         },
 

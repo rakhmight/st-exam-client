@@ -5,31 +5,31 @@
                 <div>
                     <v-tooltip text="Tooltip">
                         <template v-slot:activator="{ props }">                                
-                            <span v-bind="props" style="font-size: 0.9em; color: #888">{{ getCurrentExam.complex.length>1 ? 'Комплексный экзамен' : 'Экзамен' }}</span>
+                            <span v-bind="props" style="font-size: 0.9em; color: #888">{{ getCurrentExam.complex.length>1 ? currentLang.prepareView[0] : currentLang.prepareView[1] }}</span>
                         </template>
-                        <span>{{ getCurrentExam.complex.length>1 ? 'Комплексный экзамен' : 'Экзамен' }}</span>
+                        <span>{{ getCurrentExam.complex.length>1 ? currentLang.prepareView[0] : currentLang.prepareView[1] }}</span>
                     </v-tooltip>
                 </div>
 
                 <div style="gap: 20px; display: grid; grid-template-columns: repeat(3, 1fr);">
                     <div style="display: grid; grid-template-columns: 20px auto; justify-content: start;">
                         <div><v-icon size="18" color="var(--main-color)">mdi-alpha-s-box-outline</v-icon></div>
-                        <div>
-                            <span>Предмет: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? getSubjectName(getCurrentModuleExam.subject) : getSubjectName(getCurrentExam.complex[0].subject) }}</span></span>
+                        <div style="max-width: 300px;" class="lim-txt">
+                            <span>{{ currentLang.prepareView[2] }}: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? getSubjectName(getCurrentModuleExam.subject) : getSubjectName(getCurrentExam.complex[0].subject) }}</span></span>
                         </div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 20px auto; justify-content: center;">
                         <div><v-icon size="18" color="var(--main-color)">mdi-alarm</v-icon></div>
                         <div>
-                            <span>Время: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? getCurrentModuleExam.params.examTime : getCurrentExam.complex[0].params.examTime===null ? 'unlimit' : `${getCurrentExam.complex[0].params.examTime} min.` }}</span></span>
+                            <span>{{ currentLang.prepareView[3] }}: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? `${getCurrentModuleExam.params.examTime} ${currentLang.prepareView[4]}` : getCurrentExam.complex[0].params.examTime===null ? currentLang.prepareView[5] : `${getCurrentExam.complex[0].params.examTime} ${currentLang.prepareView[4]}` }}</span></span>
                         </div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 20px auto; justify-content: end;">
                         <div><v-icon size="18" color="var(--main-color)">mdi-ticket-confirmation-outline</v-icon></div>
                         <div>
-                            <span>Билет: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? getTicketsCount() : getCurrentTickets[0].ticketNumber }}</span></span>
+                            <span>{{ currentLang.prepareView[6] }}: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? getTicketsCount() : getCurrentTickets[0].ticketNumber }}</span></span>
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                 <div class="languages" v-if="step=='choise-lang'">
                     <div style="flex: 1 1 auto;" class="d-flex justify-center flex-column">
                         <div>
-                            <div class="d-flex justify-center"><span style="color:var(--special-color); font-size: 1.2em;">Выберите язык</span></div>
+                            <div class="d-flex justify-center"><span style="color:var(--special-color); font-size: 1.2em;">{{ currentLang.prepareView[7] }}</span></div>
 
                             <div style="width: 100%; margin-top: 30px;">
                                 <v-radio-group v-model="language" density="compact" color="var(--main-color)">
@@ -80,7 +80,7 @@
                         @click="beginExam()"
                         >
                             <v-icon :color="!language ? '#444' : '#fff'">mdi-play-circle-outline</v-icon>
-                            <span class="ml-1" :style="!language ? 'color: #444' : 'color: #fff'">Начать</span>
+                            <span class="ml-1" :style="!language ? 'color: #444' : 'color: #fff'">{{ currentLang.prepareView[8] }}</span>
                         </v-btn>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                     <div class="d-flex flex-column align-center">
                         <spinner-component/>
                         <div class="mt-7">
-                            <span style="font-size: 1.2em;">Экзамен начнётся через: <span style="font-weight: 700; color:var(--special-color)">{{ time }}</span></span>
+                            <span style="font-size: 1.2em;">{{ currentLang.prepareView[9] }}: <span style="font-weight: 700; color:var(--special-color)">{{ time }}</span></span>
                         </div>
                     </div>
                 </div>
@@ -115,7 +115,7 @@ export default {
     components: {
         SpinnerComponent
     },
-    computed: mapGetters(['getInitializationProcess', 'getUserData', 'getCurrentTickets', 'getCurrentExamID', 'getExams', 'getSubjects', 'getCurrentExam', 'getCurrentModuleExam', 'getCurrentExamsList']),
+    computed: mapGetters(['getInitializationProcess', 'getUserData', 'getCurrentTickets', 'getCurrentExamID', 'getExams', 'getSubjects', 'getCurrentExam', 'getCurrentModuleExam', 'getCurrentExamsList', 'currentLang']),
     methods: {
         ...mapMutations(['setCurrentExam', 'setExamLanguage', 'setExamState', 'setCurrentExamsList', 'setCurrentModuleExam']),
 

@@ -8,7 +8,7 @@
                         <v-img src="@/assets/media/exam.png" v-bind="props"></v-img>
                     </div>
                 </template>
-                <span>Экзамен</span>
+                <span>{{ currentLang.coordinatorView[1] }}</span>
             </v-tooltip>
             
             <v-tooltip>
@@ -18,7 +18,7 @@
                     </div>
                     <!-- <v-icon size="70" color="var(--special-color)" v-if="exam.complex.length>1" v-bind="props">mdi-format-list-text</v-icon> -->
                 </template>
-                <span>Комплексный экзамен</span>
+                <span>{{ currentLang.coordinatorView[2] }}</span>
             </v-tooltip>
 
             <!-- <div class="timer">
@@ -37,7 +37,7 @@
                         <v-icon size="25" color="var(--special-color)">mdi-content-save</v-icon>
                     </div>
                 </template>
-                <span>Автоматическое сохранение незаконченного экзамена</span>
+                <span>{{ currentLang.coordinatorView[3] }}</span>
             </v-tooltip>
             </div>
         </div>
@@ -48,7 +48,7 @@
                     <td>
                         <div class="d-flex align-center">
                             <v-icon size="18" color="var(--main-color)">mdi-alpha-s-box-outline</v-icon>
-                            <span class="ml-1">Предмет:</span>
+                            <span class="ml-1">{{ currentLang.coordinatorView[4] }}:</span>
                         </div>
                     </td>
                     <td>
@@ -64,7 +64,7 @@
                     <td>
                         <div class="d-flex align-center">
                             <v-icon size="18" color="var(--main-color)">mdi-alarm</v-icon>
-                            <span class="ml-1">Время:</span>
+                            <span class="ml-1">{{ currentLang.coordinatorView[5] }}:</span>
                         </div>
                     </td>
                     <td><div class="min-ctx">{{ exam.complex[0].params.examTime===null ? 'unlimit' : exam.complex[0].params.examTime }}</div></td>
@@ -73,7 +73,7 @@
                     <td>
                         <div class="d-flex align-center">
                             <v-icon size="18" color="var(--main-color)">mdi-help-circle-outline</v-icon>
-                            <span class="ml-1">Вопросов:</span>
+                            <span class="ml-1">{{ currentLang.coordinatorView[6] }}:</span>
                         </div>
                     </td>
                     <td><div class="min-ctx">{{ exam.complex[0].params.questionsCount }}</div></td>
@@ -82,7 +82,7 @@
                     <td>
                         <div class="d-flex align-center">
                             <v-icon size="18" color="var(--main-color)">mdi-clock-time-eight-outline</v-icon>
-                            <span class="ml-1">Начало:</span>
+                            <span class="ml-1">{{ currentLang.coordinatorView[7] }}:</span>
                         </div>
                     </td>
                     <td><div class="ctx">{{ exam.examDateParams.start.byCommand ? 'by administrator' : getExamDate(exam.examDateParams.start.date, exam.examDateParams.start.time) }}</div></td>
@@ -98,7 +98,7 @@
                     <td>
                         <div class="d-flex align-center" v-if="i==0">
                             <v-icon size="18" color="var(--main-color)">mdi-alpha-s-box-outline</v-icon>
-                            <span class="ml-1">Предметы:</span>
+                            <span class="ml-1">{{ currentLang.coordinatorView[8] }}:</span>
                         </div>
                     </td>
                     <td>
@@ -125,10 +125,10 @@
                     <td>
                         <div class="d-flex align-center">
                             <v-icon size="18" color="var(--main-color)">mdi-clock-time-eight-outline</v-icon>
-                            <span class="ml-1">Start:</span>
+                            <span class="ml-1">{{ currentLang.coordinatorView[9] }}:</span>
                         </div>
                     </td>
-                    <td><div class="ctx">{{ exam.examDateParams.start.byCommand ? 'по команде админа' : getExamDate(exam.examDateParams.start.date, exam.examDateParams.start.time) }}</div></td>
+                    <td><div class="ctx">{{ exam.examDateParams.start.byCommand ? currentLang.coordinatorView[10] : getExamDate(exam.examDateParams.start.date, exam.examDateParams.start.time) }}</div></td>
                 </tr>
             </table>
         </div>
@@ -144,7 +144,7 @@
                         <template v-slot:activator="{ props: tooltip }">
                             <v-icon size="22" color="var(--main-color)" v-bind="mergeProps(menu, tooltip)">mdi-information-outline</v-icon>
                         </template>
-                        <span>Подробнее об экзамене</span>
+                        <span>{{ currentLang.coordinatorView[11] }}</span>
                     </v-tooltip>
                 </template>
 
@@ -153,8 +153,8 @@
                         <div class="d-flex align-center justify-space-between">
                             <div class="d-flex align-center">
                                 <v-icon size="23" color="var(--main-color)">mdi-information-outline</v-icon>
-                                <span class="text-h6 ml-1" v-if="exam.complex.length==1">Информация об экзамене</span>
-                                <span class="text-h6 ml-1" v-if="exam.complex.length>1">Информация об комплексном экзамене</span>
+                                <span class="text-h6 ml-1" v-if="exam.complex.length==1">{{ currentLang.coordinatorView[12] }}</span>
+                                <span class="text-h6 ml-1" v-if="exam.complex.length>1">{{ currentLang.coordinatorView[13] }}</span>
                             </div>
                             <div>
                                 <v-icon @click="dialog=false" color="var(--red-color)">mdi-window-close</v-icon>
@@ -172,22 +172,22 @@
                                     <td>
                                         <div class="d-flex align-center">
                                             <v-icon size="18" color="var(--main-color)">mdi-clock-outline</v-icon>
-                                            <span class="ml-1">Время начала:</span>
+                                            <span class="ml-1">{{ currentLang.coordinatorView[14] }}:</span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="ctx">{{ exam.examDateParams.start.byCommand ? 'по команде админа' : getExamDate(exam.examDateParams.start.date, exam.examDateParams.start.time) }}</div>
+                                        <div class="ctx">{{ exam.examDateParams.start.byCommand ? currentLang.coordinatorView[10] : getExamDate(exam.examDateParams.start.date, exam.examDateParams.start.time) }}</div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <div class="d-flex align-center">
                                             <v-icon size="18" color="var(--main-color)">mdi-clock-outline</v-icon>
-                                            <span class="ml-1">End time:</span>
+                                            <span class="ml-1">{{ currentLang.coordinatorView[15] }}:</span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="ctx">{{ exam.examDateParams.end.byCommand ? 'по команде админа' : getExamDate(exam.examDateParams.end.date, exam.examDateParams.end.time) }}</div>
+                                        <div class="ctx">{{ exam.examDateParams.end.byCommand ? currentLang.coordinatorView[10] : getExamDate(exam.examDateParams.end.date, exam.examDateParams.end.time) }}</div>
                                     </td>
                                 </tr>
                             </table>
@@ -211,7 +211,7 @@
                                         <v-icon size="20" color="var(--special-color)" v-if="i==7">mdi-numeric-8-circle</v-icon>
                                         <v-icon size="20" color="var(--special-color)" v-if="i==8">mdi-numeric-9-circle</v-icon>
                                         <v-icon size="20" color="var(--special-color)" v-if="i==9">mdi-numeric-10-circle</v-icon>
-                                        <span class="ml-1"><span style="color: var(--special-color); font-weight: 700;">Экзамен.</span> Название предмета:</span>
+                                        <span class="ml-1"><span style="color: var(--special-color); font-weight: 700;">{{ currentLang.coordinatorView[1] }}.</span> {{ currentLang.coordinatorView[16] }}:</span>
                                     </div>
                                     <div style="width:60%">
                                         <span class="ml-1" style="color: var(--main-color)">{{ getSubjectName(object.subject) }}</span>
@@ -225,7 +225,7 @@
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-ticket-confirmation-outline</v-icon>
-                                                <span class="ml-1">Кол-во билетов:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[17] }}:</span>
                                             </div>
                                         </td>
                                         <td>
@@ -236,7 +236,7 @@
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-help-circle-outline</v-icon>
-                                                <span class="ml-1">Кол-во вопросов:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[18] }}:</span>
                                             </div>
                                         </td>
                                         <td>
@@ -247,18 +247,18 @@
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-alarm</v-icon>
-                                                <span class="ml-1">Отведённое время:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[19] }}:</span>
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="ctx">{{ object.params.examTime==null ? 'неограничено' : `${object.params.examTime} мин.` }}</div>
+                                            <div class="ctx">{{ object.params.examTime==null ? currentLang.coordinatorView[28] : `${object.params.examTime} ${currentLang.coordinatorView[29]}` }}</div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-alpha-t-box-outline</v-icon>
-                                                <span class="ml-1">Темы:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[20] }}:</span>
                                             </div>
                                         </td>
                                         <td>
@@ -269,18 +269,18 @@
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-alarm</v-icon>
-                                                <span class="ml-1">Время на 1 вопрос:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[21] }}:</span>
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="ctx">{{ object.params.questionTime==null ? 'неограничено' : `${object.params.questionTime} мин.` }}</div>
+                                            <div class="ctx">{{ object.params.questionTime==null ? currentLang.coordinatorView[28] : `${object.params.questionTime} ${currentLang.coordinatorView[29]}` }}</div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-translate</v-icon>
-                                                <span class="ml-1">Доступные языки:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[22] }}:</span>
                                             </div>
                                         </td>
                                         <td>
@@ -291,7 +291,7 @@
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-cursor-default-click-outline</v-icon>
-                                                <span class="ml-1">Возможность изменить ответ:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[23] }}:</span>
                                             </div>
                                         </td>
                                         <td>
@@ -306,7 +306,7 @@
                                         <td>
                                             <div class="d-flex align-center">
                                                 <v-icon size="18" color="var(--main-color)">mdi-star</v-icon>
-                                                <span class="ml-1">Система оценки:</span>
+                                                <span class="ml-1">{{ currentLang.coordinatorView[24] }}:</span>
                                             </div>
                                         </td>
                                         <td>
@@ -314,19 +314,19 @@
                                                 <table width="100%">
                                                     <tr>
                                                         <td>
-                                                            <span style="font-weight: 600; color: var(--special-color)">"5"</span> <span style="color: #888">(отлично)</span>
+                                                            <span style="font-weight: 600; color: var(--special-color)">"5"</span> <span style="color: #888">({{ currentLang.coordinatorView[25] }})</span>
                                                         </td>
                                                         <td>{{ `${object.params.evaluationSystem.great.from}-${object.params.evaluationSystem.great.to} %` }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>
-                                                            <span style="font-weight: 600; color: var(--special-color)">"4"</span> <span style="color: #888">(хорошо)</span>
+                                                            <span style="font-weight: 600; color: var(--special-color)">"4"</span> <span style="color: #888">({{ currentLang.coordinatorView[26] }})</span>
                                                         </td>
                                                         <td>{{ `${object.params.evaluationSystem.good.from}-${object.params.evaluationSystem.good.to} %` }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>
-                                                            <span style="font-weight: 600; color: var(--special-color)">"3"</span> <span style="color: #888">(удовлетворительно)</span>
+                                                            <span style="font-weight: 600; color: var(--special-color)">"3"</span> <span style="color: #888">({{ currentLang.coordinatorView[27] }})</span>
                                                         </td>
                                                         <td>{{ `${object.params.evaluationSystem.satisfactorily.from}-${object.params.evaluationSystem.satisfactorily.to} %` }}</td>
                                                     </tr>
@@ -347,7 +347,7 @@
                     <template v-slot:activator="{ props }">
                         <v-icon size="22" color="var(--main-color)" v-bind="props" style="cursor: pointer" @click="beginExam()">mdi-play-circle-outline</v-icon>
                     </template>
-                    <span>Начать экзамен</span>
+                    <span>{{ currentLang.coordinatorView[30] }}</span>
                 </v-tooltip>
             </div>
         </div>
@@ -364,17 +364,30 @@ export default {
     props:{
         exam: Object,
         diniedExam: Function,
-        launchPrepareProcess: Function
+        launchPrepareProcess: Function,
+        autoStartTest: undefined || String
     },
     data(){
         return {
             dialog: false
         }
     },
-    computed: mapGetters(['getSubjects', 'getAdminServerIP', 'getUserData', 'getExamServerIP', 'getCurrentTickets', 'getExams']),
+    computed: mapGetters(['getSubjects', 'getAdminServerIP', 'getUserData', 'getExamServerIP', 'getCurrentTickets', 'getExams', 'currentLang']),
+    watch: {
+        autoStartTest(){
+            this.checkAutoTest()
+        }
+    },
     methods:{
         mergeProps,
         ...mapMutations(['setCurrentTickets', 'setCurrentExamID', 'setExamToken']),
+
+        checkAutoTest(){
+            if(this.autoStartTest == this.exam.id){
+                console.log('Auto test starting');
+                this.beginExam()
+            }
+        },
 
         getSubjectsNames(){
             const subjects = []
@@ -385,7 +398,7 @@ export default {
                 }
 
                 if(subjects.length==2 && this.exam.complex.length>2){
-                    subjects.push('...other')
+                    subjects.push(this.currentLang.coordinatorView[31])
                 }
             });
 
@@ -456,9 +469,13 @@ export default {
                         })
                         .then((data)=>{
                             console.log(data);
-                            this.setCurrentTickets(data.data.tickets)
-                            this.setCurrentExamID(this.exam.id)
-                            this.launchPrepareProcess()
+                            if(data.statusCode == 403){
+                                this.diniedExam(data.message)
+                            } else {
+                                this.setCurrentTickets(data.data.tickets)
+                                this.setCurrentExamID(this.exam.id)
+                                this.launchPrepareProcess()
+                            }
                         })
                         .catch(error=>{
                             console.error(error)
@@ -466,13 +483,14 @@ export default {
                         })
                     } else if(data.statusCode == 403){
                         if(data.data.cause == 'finished'){
-                            this.diniedExam('Экзамен завершён.')
+                            this.diniedExam(this.currentLang.coordinatorView[32])
                         } else if(data.data.cause == 'not began'){
-                            this.diniedExam("Экзамен ещё не начат.")
+                            this.diniedExam(this.currentLang.coordinatorView[33])
                         } else if(data.data.cause == 'already began'){
-                            this.diniedExam("Данный пользователь этот проходит экзамен")
+                            this.diniedExam(this.currentLang.coordinatorView[34])
                         }
                     }
+                    console.log(data);
                 })
                 .catch(error=>{
                     console.error(error)
@@ -483,6 +501,7 @@ export default {
     },
     mounted(){
         //console.log(this.exam);
+        this.checkAutoTest()
     }
 }
 </script>

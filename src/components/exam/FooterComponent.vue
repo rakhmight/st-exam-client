@@ -3,29 +3,38 @@
         <div class="footer-wrap">
             <div></div>
 
-            <div style="width: 100%;display: grid; grid-template-columns: 1.2fr 0.8fr; gap:50">
+            <div style="width: 100%; display: flex; justify-content: space-between; gap:50">
                 <div class="d-flex align-center" style="gap: 50px">
                     <div class="d-flex align-center">
                         <v-icon size="18" color="#dcdcdcd0">mdi-ticket-outline</v-icon>
-                        <span class="ml-1"><span style="color: #dcdcdcd0">Билет:</span> {{ ticket.ticketNumber }}</span>
+                        <span class="ml-1"><span style="color: #dcdcdcd0">{{ currentLang.examView[3] }}:</span> {{ ticket.ticketNumber }}</span>
                     </div>
                     
                     <v-tooltip>
                         <template v-slot:activator="{ props }">
                             
-                            <div v-bind="props" style="cursor: help; max-width: 600px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;" class="d-flex align-center">
+                            <div v-bind="props" style="cursor: help; max-width: 500px;" class="lim-txt">
                                 <v-icon size="19" color="#dcdcdcd0">mdi-alpha-t-box-outline</v-icon>
-                                <span class="ml-1"><span style="color: #dcdcdcd0">Тема вопроса:</span> {{ getThemeName(theme) }}</span>
+                                <span class="ml-1"><span style="color: #dcdcdcd0">{{ currentLang.examView[4] }}:</span> {{ getThemeName(theme) }}</span>
                             </div>
                         </template>
                         <span>{{ getThemeName(theme) }}</span>
                     </v-tooltip>
+                    
+                    <div class="d-flex align-center" v-if="difficulty">
+                        <div class="d-flex align-center" style="gap: 2px">
+                            <v-icon size="18" :color="difficulty >= 1 ? 'var(--red-color)' : '#dcdcdcd0'">mdi-square-rounded</v-icon>
+                            <v-icon size="18" :color="difficulty >= 2 ? 'var(--red-color)' : '#dcdcdcd0'">mdi-square-rounded</v-icon>
+                            <v-icon size="18" :color="difficulty >= 3 ? 'var(--red-color)' : '#dcdcdcd0'">mdi-square-rounded</v-icon>
+                        </div>
+                        <span class="ml-1"><span style="color: #dcdcdcd0">{{ currentLang.examView[5] }}:</span> {{ difficulty == 1 ? currentLang.examView[6] : difficulty == 2 ? currentLang.examView[7] : difficulty == 3 ? currentLang.examView[8] : 'unknown' }}</span>
+                    </div>
                 </div>
 
                 <div class="d-flex align-center" style="gap:20px" v-if="getCurrentExam.complex[0].params.questionTime!==null">
                     <div class="d-flex align-center">
                         <v-icon size="18" color="#dcdcdcd0">mdi-clock-time-eight-outline</v-icon>
-                        <span class="ml-1"><span style="color: #dcdcdcd0">Время вопроса:</span> 0:40</span>
+                        <span class="ml-1"><span style="color: #dcdcdcd0">{{ currentLang.examView[9] }}:</span> 0:40</span>
                     </div>
                     <div>
                         <div class="main-line">
@@ -50,14 +59,19 @@ export default {
     },
     data(){
         return {
-            theme: undefined
+            theme: undefined,
+            difficulty: undefined
         }
     },
-    computed: mapGetters(['getSubjects']),
+    computed: mapGetters(['getSubjects', 'currentLang']),
     methods:{
         setCurrentTheme(){
             const target = this.ticket.questions.find(question=>question.id==this.currentQuestion)
             this.theme = target.theme
+
+            if(target.difficulty){
+                this.difficulty = target.difficulty
+            }
         },
 
         getThemeName(id){

@@ -5,7 +5,7 @@
             <div class="header__title">
                 <span class="text-h6 text-end" style="color: var(--main-color)">SMART TESTING EXAM CLIENT</span>
                 <div><v-img src="@/assets/media/auth_icon.png" width="70px"></v-img></div>
-                <span class="text-h6" style="color: var(--main-color)">AUTHENTICATION SERVER</span>
+                <span class="text-h6" style="color: var(--main-color)">SIMPLIFIED AUTH PROCESS</span>
             </div>
 
             <div class="header__bg"><div class="bg-chapter1"></div></div>
@@ -16,145 +16,135 @@
             <div class="form d-flex flex-column" style="gap:20px">
                 <div class="d-flex align-center justify-center" style="gap:10px;">
                     <div><v-img src="@/assets/media/logo.png" width="70px" height="70px"></v-img></div>
-                    <span class="text-h6">Введите данные для входа</span>
+                    <span class="text-h6">{{ currentLang.authView[0] }}</span>
                 </div>
 
                 <div style="flex: 1 1 auto; width: 100%" class="d-flex flex-column align-center justify-center">
                     
-                    <!-- <div v-if="!userRole">
+                    <div v-if="!userRole" class="d-flex flex-column w-100" style="gap:15px">
                         <div class="d-flex justify-center">
-                            <span><b>Кто входит в систему?</b></span>
+                            <span><b>{{ currentLang.authView[1] }}</b></span>
                         </div>
-                        <v-radio-group
+                        <v-select
                         color="var(--main-color)"
                         density="compact"
+                        variant="outlined"
+                        :placeholder="currentLang.authView[2]"
+                        :items="roles"
                         v-model="userRole"
-                        >
-                        <div class="roles mt-5">
-                            <div class="d-flex" style="gap:7px">
-                                <v-icon style="margin-top: -2px" size="32" color="var(--main-color)">mdi-alpha-k</v-icon>
-                                <v-radio
-                                    value="student"
-                                    class="mb-2"
-                                    label="Cadet (student)"
-                                ></v-radio>
-                            </div>
-                            <div class="d-flex" style="gap:11px">
-                                <v-icon class="mt-1 ml-1" size="24" color="var(--main-color)">mdi-account-school</v-icon>
-                                <v-radio
-                                    value="teacher"
-                                    class="mb-2"
-                                    label="Teacher"
-                                ></v-radio>
-                            </div>
-                            <div class="d-flex" style="gap:12px">
-                                <v-icon class="ml-1" size="24" color="var(--main-color)">mdi-head-lightbulb-outline</v-icon>
-                                <v-radio
-                                    value="enrollee"
-                                    class="mb-2"
-                                    label="Enrollee"
-                                ></v-radio>
-                            </div>
-                            <div class="d-flex" style="gap:12px">
-                                <v-icon class="ml-1" size="24" color="var(--main-color)">mdi-briefcase-outline</v-icon>
-                                <v-radio
-                                    value="employee"
-                                    class="mb-2"
-                                    label="Employee"
-                                ></v-radio>
-                            </div>
-                            
-                        </div>
-                        </v-radio-group>
-                    </div> -->
+                        ></v-select>
+                    </div>
 
                     <div
-                    class="align-start w-100"
-                    style="gap:20px; display:grid; gap:20px; grid-template-columns: 100px auto;"
-                    v-if="userRole && userRole=='student' && !userCourse"
+                    class="d-flex flex-column w-100"
+                    style="gap:15px"
+                    v-if="userRole && userRole=='student' && !formOfStudy || userRole && userRole=='enrollee' && !formOfStudy"
                     >
                         <div class="d-flex align-center mt-2">
-                            <v-icon size="19" color="var(--main-color)">mdi-alpha-k-box-outline</v-icon>
-                            <span class="ml-2" style="color: #555">Курс</span>
+                            <v-icon size="19" color="var(--main-color)">mdi-notebook</v-icon>
+                            <span class="ml-2" style="color: #555">{{ currentLang.authView[3] }}</span>
                         </div>                    
                         <v-select
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        placeholder="Укажите свой курс"
-                        :items="[1,2,3]"
+                        :placeholder="currentLang.authView[4]"
+                        :items="forms"
+                        v-model="formOfStudy"
+                        ></v-select>
+                    </div>
+
+                    <div
+                    class="d-flex flex-column w-100"
+                    style="gap:15px"
+                    v-if="userRole && userRole=='student' && formOfStudy && !userCourse"
+                    >
+                        <div class="d-flex align-center mt-2">
+                            <v-icon size="19" color="var(--main-color)">mdi-alpha-k-box-outline</v-icon>
+                            <span class="ml-2" style="color: #555">{{ currentLang.authView[5] }}</span>
+                        </div>                    
+                        <v-select
+                        color="var(--main-color)"
+                        density="compact"
+                        variant="outlined"
+                        :placeholder="currentLang.authView[6]"
+                        :items="courses"
                         v-model="userCourse"
                         ></v-select>
                     </div>
 
                     <div
-                    class="align-start w-100" style="gap:20px; display:grid; gap:20px; grid-template-columns: 100px auto;"
-                    v-if="userCourse && userRole=='student' && !userGroup || userRole=='enrollee' && !userGroup"
+                    class="d-flex flex-column w-100"
+                    style="gap:15px"
+                    v-if="userCourse && userRole=='student' && !userGroup || userRole=='enrollee' && !userGroup && formOfStudy"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-account-group</v-icon>
-                            <span class="ml-2" style="color: #555">Группа</span>
+                            <span class="ml-2" style="color: #555">{{ currentLang.authView[7] }}</span>
                         </div>                    
                         <v-select
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        placeholder="Укажите свою группу"
-                        :items="[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200]"
+                        :placeholder="currentLang.authView[8]"
+                        :items="groups"
                         v-model="userGroup"
                         ></v-select>
                     </div>
 
                     <div
-                    class="align-start w-100" style="gap:20px; display:grid; gap:20px; grid-template-columns: 100px auto;"
+                    class="d-flex flex-column w-100"
+                    style="gap:15px"
                     v-if="userRole && userRole=='employee' && !userDepartment || userRole && userRole=='teacher' && !userDepartment"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-account-group</v-icon>
-                            <span class="ml-2" style="color: #555" v-if="userRole=='employee'">Отдел</span>
-                            <span class="ml-2" style="color: #555" v-if="userRole=='teacher'">Кафедра</span>
+                            <span class="ml-2" style="color: #555" v-if="userRole=='employee'">{{ currentLang.authView[9] }}</span>
+                            <span class="ml-2" style="color: #555" v-if="userRole=='teacher'">{{ currentLang.authView[10] }}</span>
                         </div>                    
                         <v-select
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        :placeholder="userRole=='employee' ? 'Укажите свой отдел' : 'Укажите свою кафедру'"
+                        :placeholder="userRole=='employee' ? currentLang.authView[11] : currentLang.authView[12]"
                         :items="departmentsList"
                         v-model="userDepartment"
                         ></v-select>
                     </div>
 
                     <div
-                    class="align-start w-100" style="gap:20px; display:grid; gap:20px; grid-template-columns: 100px auto;"
+                    class="d-flex flex-column w-100"
+                    style="gap:15px"
                     v-if="userRole=='student' && userGroup && !userName || userRole=='enrollee' && userGroup && !userName || userRole=='teacher' && userDepartment && !userName || userRole=='employee' && userDepartment && !userName"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-account</v-icon>
-                            <span class="ml-2" style="color: #555">Ф.И.О.</span>
+                            <span class="ml-2" style="color: #555">{{ currentLang.authView[13] }}</span>
                         </div>                    
                         <v-select
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        placeholder="Выберите себя из списка"
+                        :placeholder="currentLang.authView[14]"
                         :items="usersList"
                         v-model="userName"
-                        no-data-text="Список пуст"
+                        :no-data-text="currentLang.authView[15]"
                         ></v-select>
                     </div>
 
                     <div
-                    class="align-start w-100" style="gap:20px; display:grid; gap:20px; grid-template-columns: 100px auto;"
+                    class="d-flex flex-column w-100"
+                    style="gap:15px"
                     v-if="userName"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-key-variant</v-icon>
-                            <span class="ml-2" style="color: #555">Пароль</span>
+                            <span class="ml-2" style="color: #555">{{ currentLang.authView[16] }}</span>
                         </div>
                         <v-text-field
                         variant="outlined"
                         density="compact"
-                        placeholder="Введите пароль"
+                        :placeholder="currentLang.authView[17]"
                         color="var(--main-color)"
                         v-model="password"
                         :error="passwordError.value"
@@ -171,9 +161,10 @@
                         width="200px"
                         @click="back()"
                         :disabled="loader || success"
+                        variant="plain"
                         >
-                        <v-icon color="#777" size="18">mdi-arrow-left</v-icon>
-                        <span class="ml-1" style="color: #777">Назад</span>
+                        <v-icon color="#777" size="16">mdi-arrow-left</v-icon>
+                        <span class="ml-1" style="color: #777; font-size: small;">{{ currentLang.authView[18] }}</span>
                         </v-btn>
                     </div>
                 </div>
@@ -186,7 +177,7 @@
                     @click="auth()"
                     :disabled="blockBtn"
                     >
-                    <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Войти</span>
+                    <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">{{ currentLang.authView[19] }}</span>
                     <v-progress-circular
                         :width="1"
                         size="15"
@@ -221,7 +212,7 @@
                 class="d-flex flex-row align-center"
                 >
                     <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
-                    <span style="color:#fff">Успешная авторизация</span>
+                    <span style="color:#fff">{{ currentLang.authView[20] }}</span>
                 </v-alert>
             </div>
                     
@@ -254,7 +245,7 @@
             </div>
 
             <div>
-                <span>ST Exam client v.0.1</span>
+                <span>ST Exam client v.1.1</span>
             </div>
         </div>
 
@@ -265,6 +256,7 @@
 import { socket } from '@/socket';
 import { mapGetters, mapMutations } from 'vuex';
 import makeReq from '@/utils/makeReq';
+import { getCourse } from '@/utils/getInfo';
 
 export default {
     data(){
@@ -280,15 +272,14 @@ export default {
             blockBtn: true,
             loader: false,
             success: false,
-            roles: [
-                { title: 'Курсант', value: 'student' },
-                { title: 'Абитуриент', value: 'enrollee' },
-                { title: 'Преподаватель', value: 'teacher' },
-                { title: 'Сотрудник', value: 'employee' },
-            ],
+            roles: [],
+            forms: [],
+            courses: [1,2,3,4],
+            groups: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200],
 
             password: undefined,
-            userRole: 'enrollee',
+            userRole: undefined,
+            formOfStudy: undefined,
             userCourse: undefined,
             userGroup: undefined,
             userName: undefined,
@@ -301,7 +292,7 @@ export default {
             nextEducationYear: false
         }
     },
-    computed: mapGetters(['getInitializationProcess', 'getAuthServerIP', 'getAuthState', 'getAdminServerIP', 'getUserData', 'getUsersList', 'getDepartments', 'getDeviceID', 'getSocketCode']),
+    computed: mapGetters(['getInitializationProcess', 'getAuthServerIP', 'getAuthState', 'getAdminServerIP', 'getUserData', 'getUsersList', 'getDepartments', 'getDeviceID', 'getSocketCode', 'currentLang']),
     async mounted(){
         if(this.getInitializationProcess){
             socket.connect()
@@ -314,18 +305,32 @@ export default {
         if(currentDate.getMonth()>8){
             this.nextEducationYear = true
         }
+
+        document.addEventListener('keydown', this.handleEnterKey);
+
+        this.choiseLists()
+    },
+    unmounted(){
+        document.removeEventListener('keydown', this.handleEnterKey); // удаление обработчика
     },
     methods:{
         ...mapMutations(['setUserData', 'setAuthState']),
 
+        handleEnterKey(){
+            if(event.code=='Enter' || event.code == 'NumpadEnter'){
+                if(this.password) this.auth()
+            }
+        },
+
         back(){
-            this.userRole = 'enrollee'
+            this.userRole = undefined
             this.userDepartment = undefined
             this.userCourse = undefined
             this.userGroup = undefined
             this.userName = undefined
             this.password = undefined
             this.blockBtn = true
+            this.formOfStudy = undefined
         },
 
         getCourse(year){
@@ -354,11 +359,11 @@ export default {
                     console.log(data);
                     if(data.statusCode == 404){
                         this.passwordError.value = true
-                        this.passwordError.msg = 'Неверный пароль пользователя'
+                        this.passwordError.msg = this.currentLang.authView[21]
                         this.loader = false
                     } else if(data.statusCode == 500){
                         this.error.value = true
-                        this.error.msg = 'Временные неполадки на стороне Auth-сервера'
+                        this.error.msg = this.currentLang.authView[22]
                         this.loader = false
                     } else if(data.statusCode == 200) {
                         this.loader = false
@@ -384,16 +389,77 @@ export default {
             }
         },
 
+        choiseLists(){
+            const rolesList = []
+            const formsList = []
+            const coursesList = []
+            const groupsList = []
+            const departmentsList = []
+
+            this.getUsersList.map(user => {
+                const targetRole = rolesList.find(role => role == user.userRole)
+                if(!targetRole) rolesList.push(user.userRole)
+
+                if(user.userRole == 'student' || user.userRole == 'enrollee'){
+                    const targetForm = user.userRole == 'student' ? formsList.find(form => form == user.roleProperties.educationForm) : formsList.find(form => form == user.roleProperties.formOfEducation)
+                    if(!targetForm) formsList.push(user.userRole == 'student' ? user.roleProperties.educationForm : user.roleProperties.formOfEducation)
+
+                    if(user.userRole == 'student'){
+                        const userCourse = getCourse(user.roleProperties.recieptDate)
+                        const targetCourse = coursesList.find(course => course == userCourse)
+                        if(!targetCourse) coursesList.push(userCourse)
+                    }
+
+                    const targetGroup = groupsList.find(group => group == user.roleProperties.group)
+                    if(!targetGroup) groupsList.push(user.roleProperties.group)
+                }
+
+                if(user.userRole == 'teacher' || user.userRole == 'employee') {
+                    const targetDepartment = departmentsList.find(department => department == user.roleProperties.department)
+                    if(!targetDepartment) departmentsList.push(user.roleProperties.department)
+                }
+            })
+
+            this.roles = rolesList.map(role => {
+                if(role == 'student') return { title: this.currentLang.authView[23], value: role }
+                if(role == 'enrollee') return { title: this.currentLang.authView[24], value: role }
+                if(role == 'teacher') return { title: this.currentLang.authView[25], value: role }
+                if(role == 'employee') return { title: this.currentLang.authView[26], value: role }
+            })
+            if(rolesList.length == 1) this.userRole = rolesList[0]
+            else this.userRole = undefined
+
+            this.forms = formsList.map(form => {
+                if(form == 'full-time') return { title: this.currentLang.authView[27], value: form }
+                if(form == 'in-absentia') return { title: this.currentLang.authView[28], value: form }
+                if(form == 'magistracy') return { title: this.currentLang.authView[29], value: form }
+            })
+            if(formsList.length == 1 && !departmentsList.length && this.userRole) this.formOfStudy = formsList[0]
+            else this.formOfStudy = undefined
+
+            this.courses = coursesList
+            if(coursesList.length == 1 && this.formOfStudy) this.userCourse = coursesList[0]
+            else this.userCourse = undefined
+
+            this.groups = groupsList
+            if(groupsList.length == 1 && this.userCourse) this.userGroup = groupsList
+            else this.userGroup = undefined
+
+            this.departmentsList = departmentsList
+            if(departmentsList.length == 1 && !formsList.length && this.userRole) this.userDepartment = departmentsList[0]
+            else this.userDepartment = undefined
+
+        },
+
         sortUsers(){
             this.usersList = []
-            console.log(this.getUsersList)
 
             if(this.userRole == 'teacher' || this.userRole=='employee'){
                 this.getUsersList.forEach(user=>{
                     if(user.userRole == 'teacher' || user.userRole == 'employee'){
-                        if(user.roleProperties.department == this.userDepartment){
+                        if(user.roleProperties.department == this.userDepartment && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.lastName} ${user.bio.firstName} ${user.bio.patronymic}`,
+                                title: `${user.bio.firstName} ${user.bio.lastName} ${user.bio.patronymic}`,
                                 value: user.id
                             })
                         }
@@ -402,9 +468,9 @@ export default {
             } else if(this.userRole == 'student'){
                 this.getUsersList.forEach(user=>{
                     if(user.userRole == 'student'){
-                        if(this.getCourse(user.roleProperties.recieptDate) == this.userCourse && user.roleProperties.group == this.userGroup){
+                        if(this.getCourse(user.roleProperties.recieptDate) == this.userCourse && user.roleProperties.group == this.userGroup && user.roleProperties.educationForm == this.formOfStudy && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.lastName} ${user.bio.firstName} ${user.bio.patronymic}`,
+                                title: `${user.bio.firstName} ${user.bio.lastName} ${user.bio.patronymic}`,
                                 value: user.id
                             })
                         }
@@ -413,18 +479,25 @@ export default {
             } else if(this.userRole == 'enrollee'){
                 this.getUsersList.forEach(user=>{
                     if(user.userRole == 'enrollee'){
-                        if(user.roleProperties.group == this.userGroup){
+                        if(user.roleProperties.group == this.userGroup && user.roleProperties.educationForm == this.formOfStudy && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.lastName} ${user.bio.firstName} ${user.bio.patronymic}`,
+                                title: `${user.bio.firstName} ${user.bio.lastName} ${user.bio.patronymic}`,
                                 value: user.id
                             })
                         }
                     }
                 })
             }
+
+            // console.log(this.usersList);
+            // const usersListWithoutDouble = new Set(this.usersList)
+            // this.usersList = Array.from(usersListWithoutDouble);
         }
     },
     watch:{
+        getUsersList(){
+            this.choiseLists()
+        },
         password(){
 
             if(this.password){

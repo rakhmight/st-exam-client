@@ -34,13 +34,13 @@
             v-model="choisedAnswer"
             >
             <div class="answers" v-if="randAnswers">
-                <div class="answer d-flex flex-column" v-for="(answer, i) in randAnswers" :key="i">
+                <div class="answer d-flex flex-column" v-for="(answer, i) in randAnswers" :key="answer.id">
                     <div class="d-flex align-center" style="gap:10px">
                         <div>
                             <v-radio @click="reset(answer.id)" :value="answer.id" :class="`answer-${i}`" class="pl-2 pr-2"></v-radio>
                         </div>
 
-                        <div class="ctx" v-if="getExamLanguage=='ru' && answer.answerCtx.ru || getExamLanguage=='eng' && answer.answerCtx.eng || getExamLanguage=='custom' && answer.answerCtx.custom || getExamLanguage=='uz_l' && answer.answerCtx.uz_l || getExamLanguage=='uz_k' && answer.answerCtx.uz_k || getExamLanguage=='fr' && answer.answerCtx.fr || getExamLanguage=='de' && answer.answerCtx.de">
+                        <div class="ctx" v-if="getExamLanguage=='ru' && answer.answerCtx.ru || getExamLanguage=='eng' && answer.answerCtx.eng || getExamLanguage=='custom' && answer.answerCtx.custom || getExamLanguage=='uz_l' && answer.answerCtx.uz_l || getExamLanguage=='uz_k' && answer.answerCtx.uz_k || getExamLanguage=='fr' && answer.answerCtx.fr || getExamLanguage=='de' && answer.answerCtx.de" :style="choisedAnswer==answer.id ? 'border: 1px solid var(--main-color);background: #0d5fd80d;' : ''">
                             {{ getExamLanguage=='ru' ? answer.answerCtx.ru : getExamLanguage=='eng' ? answer.answerCtx.eng : getExamLanguage=='custom' ? answer.answerCtx.custom : getExamLanguage=='uz_k' ? answer.answerCtx.uz_k : getExamLanguage=='uz_l' ? answer.answerCtx.uz_l : getExamLanguage=='fr' ? answer.answerCtx.fr : answer.answerCtx.de }}
                         </div>
                         
@@ -72,7 +72,7 @@
                             class="ml-2"
                             ></v-checkbox>
                         </div>
-                        <div class="ctx" v-if="getExamLanguage=='ru' && answer.answerCtx.ru || getExamLanguage=='eng' && answer.answerCtx.eng || getExamLanguage=='custom' && answer.answerCtx.custom || getExamLanguage=='uz_l' && answer.answerCtx.uz_l || getExamLanguage=='uz_k' && answer.answerCtx.uz_k || getExamLanguage=='fr' && answer.answerCtx.fr || getExamLanguage=='de' && answer.answerCtx.de">
+                        <div class="ctx" v-if="getExamLanguage=='ru' && answer.answerCtx.ru || getExamLanguage=='eng' && answer.answerCtx.eng || getExamLanguage=='custom' && answer.answerCtx.custom || getExamLanguage=='uz_l' && answer.answerCtx.uz_l || getExamLanguage=='uz_k' && answer.answerCtx.uz_k || getExamLanguage=='fr' && answer.answerCtx.fr || getExamLanguage=='de' && answer.answerCtx.de" :style="choisedAnswers.indexOf(answer.id)!=-1 ? 'border: 1px solid var(--main-color);background: #0d5fd80d;' : ''">
                             {{ getExamLanguage=='ru' ? answer.answerCtx.ru : getExamLanguage=='eng' ? answer.answerCtx.eng : getExamLanguage=='custom' ? answer.answerCtx.custom : getExamLanguage=='uz_k' ? answer.answerCtx.uz_k : getExamLanguage=='uz_l' ? answer.answerCtx.uz_l : getExamLanguage=='fr' ? answer.answerCtx.fr : answer.answerCtx.de }}
                         </div>
                         
@@ -98,6 +98,7 @@
                     variant="text"
                     icon
                     size="32"
+                    @click="previewQuestion()"
                     >
                     <v-icon size="27">mdi-arrow-left-thin-circle-outline</v-icon>
                     </v-btn>
@@ -107,6 +108,7 @@
                     variant="text"
                     icon
                     size="32"
+                    @click="nextQuestion()"
                     >
                     <v-icon size="27">mdi-arrow-right-thin-circle-outline</v-icon>
                     </v-btn>
@@ -129,7 +131,9 @@ export default {
         savingsClone: Array,
         switchAnswerCloneState: Function,
         answerCloneSwitched: Boolean,
-        switchingAnswerClone: Function
+        switchingAnswerClone: Function,
+        nextQuestion: Function,
+        previewQuestion: Function
     },
     data(){
         return {

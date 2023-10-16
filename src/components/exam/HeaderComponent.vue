@@ -12,13 +12,13 @@
                 <div class="d-flex align-center" style="gap: 50px">
                     <div class="d-flex align-center">
                         <v-icon size="18" color="#dcdcdcd0">mdi-help-circle-outline</v-icon>
-                        <span class="ml-1"><span style="color: #dcdcdcd0">Вопросы:</span> {{ answeredQuestions.length }}/{{ ticket.questions.length }}</span>
+                        <span class="ml-1"><span style="color: #dcdcdcd0">{{ currentLang.examView[10] }}:</span> {{ answeredQuestions.length }}/{{ ticket.questions.length }}</span>
                     </div>
 
                     <div class="d-flex align-center" style="gap: 20px">
                         <div class="d-flex align-center">
                             <v-icon size="18" color="#dcdcdcd0">mdi-clock-time-eight-outline</v-icon>
-                            <span class="ml-1"><span style="color: #dcdcdcd0">Время:</span> <span :style="timer!==null && timer<31 ? 'color: #ff5402' : ''">{{ timer===null ? '∞ (не ограничено)' : formatTime(timer) }}</span></span>
+                            <span class="ml-1"><span style="color: #dcdcdcd0">{{ currentLang.examView[11] }}:</span> <span :style="timer!==null && timer<31 ? 'color: #ff5402' : ''">{{ timer===null ? `∞ (${currentLang.examView[12]})` : formatTime(timer) }}</span></span>
                         </div>
                         
                         <div class="main-line" v-if="timer!==null">
@@ -28,8 +28,15 @@
                 </div>
 
                 <div class="d-flex align-center">
-                    <v-icon size="19" color="#dcdcdcd0">mdi-alpha-s-box-outline</v-icon>
-                    <span class="ml-1"><span style="color: #dcdcdcd0">Предмет:</span> {{ getSubjectName(ticket.subject) }}</span>
+                    <v-tooltip>
+                        <template v-slot:activator="{ props }">
+                            <div v-bind="props" class="lim-txt" style="width: 500px;cursor: help;">
+                                <v-icon size="19" color="#dcdcdcd0">mdi-alpha-s-box-outline</v-icon>
+                                <span class="ml-1"><span style="color: #dcdcdcd0">{{ currentLang.examView[13] }}:</span> {{ getSubjectName(ticket.subject) }}</span>
+                            </div>
+                        </template>
+                        <span>{{ getSubjectName(ticket.subject) }}</span>
+                    </v-tooltip>
                 </div>
             </div>
         </div>
@@ -47,7 +54,7 @@ export default {
         answeredQuestions: Array,
         timePoint: Number
     },
-    computed: mapGetters(['getSubjects']),
+    computed: mapGetters(['getSubjects', 'currentLang']),
     methods:{
         // Форматирует таймер
         formatTime(time) {
@@ -76,7 +83,8 @@ export default {
     width: 100%;
     height: 70px;
     background-color: var(--main-color);
-    color: #fff
+    color: #fff;
+    z-index: 10
 }
 .header-wrap{
     width: 100%;

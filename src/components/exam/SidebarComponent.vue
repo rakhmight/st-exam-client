@@ -5,7 +5,7 @@
                 <div class="map__title">
                     <div class="d-flex align-center mb-1">
                         <v-icon size="18">mdi-format-list-bulleted</v-icon>
-                        <span class="ml-1" style="font-size: 1.1em; font-weight: 300;">Вопросы</span>
+                        <span class="ml-1" style="font-size: 1.1em; font-weight: 300;">{{ currentLang.examView[37] }}</span>
                     </div>
                     <v-divider></v-divider>
                 </div>
@@ -13,11 +13,11 @@
                     <v-table
                     density="compact"
                     >
-                        <thead>
+                        <thead style="background-color: #ffffff0d">
                         <tr>
-                            <th style="width: 25px"></th>
-                            <th class="text-left" style="width: 30px; color: #dcdcdcd0">#</th>
-                            <th class="text-left" style="color: #dcdcdcd0; font-weight: 300;">Контекст ?-ов</th>
+                            <th style="width: 25px;padding: 0 7px;"></th>
+                            <th class="text-left" style="width: 30px; color: #dcdcdcd0;padding: 0 7px;">№</th>
+                            <th class="text-left" style="color: #dcdcdcd0; font-weight: 300;padding: 0 7px;">{{ currentLang.examView[38] }}</th>
                         </tr>
                         </thead>
                     </v-table>
@@ -35,36 +35,36 @@
                         :class="`map-${question.id}`"
                         class="map-item"
                         >
-                            <td style="width: 25px; max-width: 25px;" v-if="answeredQuestions.indexOf(question.id)==-1">
+                            <td style="width: 25px; max-width: 25px;color: #fff;padding: 0 7px;font-weight: 300;overflow: hidden;cursor: pointer;" v-if="answeredQuestions.indexOf(question.id)==-1">
                                 <v-tooltip location="top">
                                     <template v-slot:activator="{ props }">
                                         <v-icon v-bind="props" v-if="question.type=='basic-question'" size="18" :color="question.id==currentQuestion ? '#64b0ff' : ''">mdi-text</v-icon>
                                     </template>
-                                    <span>простой вопрос</span>
+                                    <span>{{ currentLang.examView[39] }}</span>
                                 </v-tooltip>
                                 <v-tooltip location="top">
                                     <template v-slot:activator="{ props }">
                                         <v-icon v-bind="props" v-if="question.type=='question-with-images'" size="18" :color="question.id==currentQuestion ? '#64b0ff' : ''">mdi-image-outline</v-icon>
                                     </template>
-                                    <span>вопрос с изображениями</span>
+                                    <span>{{ currentLang.examView[40] }}</span>
                                 </v-tooltip>
                                 <v-tooltip location="top">
                                     <template v-slot:activator="{ props }">
                                         <v-icon v-bind="props" v-if="question.type=='question-with-field'" size="18" :color="question.id==currentQuestion ? '#64b0ff' : ''">mdi-selection-ellipse-arrow-inside</v-icon>
                                     </template>
-                                    <span>вопрос с выбираемой областью</span>
+                                    <span>{{ currentLang.examView[41] }}</span>
                                 </v-tooltip>
                             </td>
-                            <td style="width: 25px; max-width: 25px;" v-if="answeredQuestions.indexOf(question.id)!=-1">
+                            <td style="width: 25px; max-width: 25px;color: #fff;padding: 0 7px;font-weight: 300;overflow: hidden;cursor: pointer;" v-if="answeredQuestions.indexOf(question.id)!=-1">
                                 <v-tooltip location="top">
                                     <template v-slot:activator="{ props }">
                                         <v-icon size="18" color="#64b0ff" v-bind="props">mdi-check-circle-outline</v-icon>
                                     </template>
-                                    <span>отвечено</span>
+                                    <span>{{ currentLang.examView[42] }}</span>
                                 </v-tooltip>
                             </td>
-                            <td style="width: 25px; max-width: 30px;">{{ i+1 }}</td>
-                            <td style="max-width: 90px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                            <td style="width: 25px; max-width: 30px;color: #fff;padding: 0 7px;font-weight: 300;overflow: hidden;cursor: pointer;">{{ i+1 }}</td>
+                            <td style="max-width: 90px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;color: #fff;padding: 0 7px;font-weight: 300;overflow: hidden;cursor: pointer;">
                                 {{ getExamLanguage=='ru' ? question.context.questionCtx.ru : getExamLanguage=='eng' ? question.context.questionCtx.eng : getExamLanguage=='custom' ? question.context.questionCtx.custom : getExamLanguage=='uz_k' ? question.context.questionCtx.uz_k : question.context.questionCtx.uz_l }}
                             </td>
                         </tr>
@@ -91,6 +91,8 @@
                 :showResultDialog="showResultDialog"
                 :exitExam="exitExam"
                 :examResults="examResults"
+                :answeredQuestions="answeredQuestions"
+                :ticket="ticket"
                 />
             </div>
         </div>
@@ -98,7 +100,7 @@
         <div class="info" style="margin-bottom: 90px;">
             <div class="d-flex align-center">
                 <v-icon size="18" color="#dcdcdcd0">mdi-information-outline</v-icon>
-                <span class="ml-1" style="color: #dcdcdcd0">Экзаменируемый:</span>
+                <span class="ml-1" style="color: #dcdcdcd0">{{ currentLang.examView[43] }}:</span>
             </div>
             
             <v-tooltip>
@@ -135,7 +137,7 @@ export default {
     components:{
         ResultDialog
     },
-    computed: mapGetters(['getUserData']),
+    computed: mapGetters(['getUserData', 'currentLang']),
     methods:{
         mapOrient(){
             const target = document.querySelector(`.map-${this.currentQuestion}`)
@@ -179,6 +181,10 @@ export default {
 
 .map-item{
     scroll-margin-top:120px;
+}
+
+.map-item:hover{
+    background-color: #ffffff0e;
 }
 
 .v-table{

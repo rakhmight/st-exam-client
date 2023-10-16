@@ -1,7 +1,42 @@
 <template>
   <v-app>
     <v-main>
-      <router-view />
+      <div style="position: relative;">
+        <router-view />      
+        <div style="position: absolute; bottom: 0; left: 0; z-index: 777; padding: 2px 20px">
+          <v-menu
+          offset-y
+          max-width="120"
+          center
+          >
+              <template v-slot:activator="{ props }">
+              <v-btn
+                  icon
+                  v-bind="props"
+                  color="var(--main-color)"
+                  density="comfortable"
+              >
+                  <v-icon
+                  size="18"
+                  color="white"
+                  >mdi-translate</v-icon>
+              </v-btn>
+              </template>
+              
+              <v-list style="padding:0">
+                <v-list-item
+                  v-for="(lang, i) in langs"
+                  :key="i"
+                  :value="index"
+                  @click="setLanguage(lang.short)"
+                  density="compact"
+                >
+                  <v-list-item-title><span style="color: #0167FF">{{lang.lang}}</span></v-list-item-title>
+                </v-list-item>
+              </v-list>
+          </v-menu>
+        </div>
+      </div>
     </v-main>
   </v-app>
 </template>
@@ -11,19 +46,31 @@ import { initDB } from "./services/localDB"
 import { mapMutations, mapGetters } from "vuex"
 import path from 'path-browserify'
 import makeReq from "./utils/makeReq";
+import { socket } from '@/socket';
 
 export default {
   name: "App",
   data() {
     return {
       savingsCheckerWorker: undefined,
+      langs: [
+        {lang: 'русский', short: 'ru'},
+        {lang: "o'zbek", short: 'uz_l'}
+      ],
+      activeLang: 'ru'
     };
   },
   methods: {
-    ...mapMutations(["setSavesCounter"]),
+    ...mapMutations(["setSavesCounter", 'changeLang', 'setUsersList']),
+
+    setLanguage(lang){
+        this.changeLang(lang)
+        this.activeLang = lang
+      }
   },
-  computed: mapGetters(['getInitializationProcess', 'getAdminServerIP']),
+  computed: mapGetters(['getInitializationProcess', 'getAdminServerIP', 'getUsersList']),
   async mounted() {
+
     // Local DB init
     initDB();
 
@@ -83,6 +130,17 @@ export default {
         )))
       }
     }
+
+    const ctx = this
+    socket.on('usersParams', (usersParamsList)=>{
+      const usersParams = []
+        usersParamsList.map(up => {
+            usersParams.push(...up.usersParams)
+        })
+
+        ctx.setUsersList(usersParams)
+        console.log(ctx.getUsersList)
+    })
   },
   unmounted() {
     const adminServerIp = localStorage.getItem('st-admin-server')
@@ -125,5 +183,12 @@ html {
 
 * {
   overflow-y: auto;
+}
+
+.lim-txt{
+  cursor: help;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
