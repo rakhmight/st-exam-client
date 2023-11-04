@@ -58,6 +58,27 @@
                 <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[0] }}</span>
             </div>
 
+            <div class="stop" v-if="step=='stop'">
+                <div>
+                    <v-img width="90px" src="@/assets/media/stop.png"></v-img>
+                </div>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">Administrator stop your exam</span>
+            </div>
+
+            <div class="delete-exam" v-if="step=='delete-exam'">
+                <div>
+                    <v-img width="90px" src="@/assets/media/warning.png"></v-img>
+                </div>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">Administrator has delete that exam</span>
+            </div>
+            
+            <div class="exclude-exam" v-if="step=='exclude-exam'">
+                <div>
+                    <v-img width="90px" src="@/assets/media/kick.png"></v-img>
+                </div>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">Administrator excluded you from the exam</span>
+            </div>
+
             <div class="timeout" v-if="step=='timeout'">
                 <div>
                     <v-img width="100px" src="@/assets/media/sandglass.png"></v-img>
@@ -100,6 +121,7 @@ import ContentComponent from '@/components/exam/ContentComponent.vue';
 import { mapGetters, mapMutations } from 'vuex';
 import makeReq from '@/utils/makeReq';
 import path from 'path-browserify'
+import { socket } from '@/socket';
 
 export default {
     data(){
@@ -129,7 +151,7 @@ export default {
             blockSavingProcess: true,
             savingsClone: [],
             exitClaim: false,
-
+            
             blockSend: false
         }
     },
@@ -183,9 +205,95 @@ export default {
         // прослушивание клавиш
         document.addEventListener('keydown', this.handleKeyDown);
 
+        // прослушивание сокетов
+        socket.on(`client-pause-${this.getUserData.authData.id}`, ()=>{
+            this.actionHandler('paused')
+        })
+
+        socket.on(`client-resume-${this.getUserData.authData.id}`, ()=>{
+            this.actionHandler('resumed')
+        })
+
+        socket.on(`client-stop-${this.getUserData.authData.id}`, ()=>{
+            this.actionHandler('stop')
+        })
+
+        socket.on(`client-change-question-${this.getUserData.authData.id}`, (data) => {
+            this.changeQuestion(data.examData)
+        })
+
+        socket.on(`client-delete-exam-${this.getUserData.authData.id}`,() => {
+            this.actionHandler('delete-exam')
+        })
+
+        socket.on(`client-exclude-${this.getUserData.authData.id}`,() => {
+            this.actionHandler('exclude-exam')
+        })
+
     },
     methods:{
         ...mapMutations(['setCurrentTickets', 'setCurrentExam', 'setCurrentExamID', 'setCurrentExamsList', 'setExamLanguage', 'setExamState', 'setCurrentSaving', 'updateSavesCounter', 'setCurrentModuleExam', 'updateCurrentExamsList', 'setUserData', 'setAuthState', 'setExamToken']),
+
+        changeQuestion(data){
+            // Удаление заменяемого вопроса из ticket.questions, answers, answeredQuestion
+            console.log(data);
+            if(this.ticket.questions.find(question => question.id == data.questionID)!=-1){
+                const targetQ = this.ticket.questions.find(question => question.id == data.questionID)
+                const indexQ = this.ticket.questions.indexOf(targetQ)
+                console.log(this.ticket.questions);
+
+                if(this.currentQuestion == data.questionID){
+                    this.nextQuestion()
+                }
+
+                this.ticket.questions.splice(indexQ, 1)
+                console.log(this.ticket.questions);
+
+                const targetA = this.answers.find(answer => answer.id == data.questionID)
+                const indexA = this.answers.indexOf(targetA)
+                this.answers.splice(indexA, 1)
+
+                if(this.answeredQuestion){
+                    if(this.answeredQuestion.find( aq => aq == data.questionID)!=-1){
+                        const targetAQ = this.answeredQuestion.find( aq => aq == data.questionID)
+                        const indexAQ = this.answeredQuestion.indexOf(targetAQ)
+                        this.answeredQuestion.splice(indexAQ, 1)
+                    }
+                }
+
+                // Подставление вопроса в ticket.questions из ticket.additionalQuestions
+                const injectedQuestion = this.ticket.additionalQuestions.shift()
+                this.ticket.questions.push(injectedQuestion)
+
+                // Добавление данных в answers
+                const injectedAnswer = {
+                        id: injectedQuestion.id,
+                        answer: null
+                }
+                this.answers.push(injectedAnswer)
+
+                // добавление истории действий
+                this.userActions.push({ actType: 'change-question', ctx: { timestamp: Date.now(), changedQuestion: data.questionID, injectedQuestion: injectedQuestion.id }})
+                this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                    {
+                        type: 'putSaving',
+                        ctx: {
+                            id: this.getCurrentSaving,
+                            data: {
+                                id: this.getCurrentSaving,
+                                userID: this.getUserData.authData.id,
+                                examID: this.getCurrentExamID,
+                                actions: this.userActions,
+                                ticket: this.ticket.ticketNumber,
+                                subject: this.ticket.subject,
+                                startTime: this.startTime,
+                                residualTime: this.timer
+                            }
+                        }
+                    }
+                )))
+            }
+        },
 
         switchAnswerCloneState(questionID){
             console.log('Switch cheking');
@@ -285,8 +393,8 @@ export default {
             console.log(this.answers);
 
             // подготовка таймера
-            if(this.getCurrentExam.complex[0].params.examTime!==null){
-                this.timer = this.getCurrentExam.complex[0].params.examTime*60
+            if(this.getCurrentModuleExam.params.examTime!==null){
+                this.timer = this.getCurrentModuleExam.params.examTime*60
                 this.timePoint = 100/this.timer
             } else {
                 this.timer = null
@@ -340,7 +448,7 @@ export default {
             }
         },
 
-        actionHandler(type, ctx){
+        async actionHandler(type, ctx){
             if(type=='start'){
                     // Если нет сохранения данного процесса
                     if(!this.savingAvaible){
@@ -377,8 +485,33 @@ export default {
                             !this.userActions[this.userActions.length-1].ctx.answer && !question.multipleAnswers ||
                             !this.userActions[this.userActions.length-1].ctx.answer && question.multipleAnswers ||
                             this.userActions[this.userActions.length-1].ctx.answer && question.multipleAnswers
-                        ) {
+                        ){
                             this.userActions[this.userActions.length-1].ctx.answer = ctx.answer
+                            
+                            // TODO: отправка сохранений
+                            await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
+                                auth: {
+                                    id: this.getUserData.authData.id,
+                                    token: this.getUserData.authData.token.key,
+                                },
+                                saving: {
+                                    id: this.getCurrentSaving,
+                                    userID: this.getUserData.authData.id,
+                                    examID: this.getCurrentExamID,
+                                    actions: this.userActions,
+                                    ticket: this.ticket.ticketNumber,
+                                    subject: this.ticket.subject,
+                                    startTime: this.startTime,
+                                    residualTime: this.timer
+                                }
+                            })
+                            .then(data=>{
+                                console.log(data)
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            })
+                            
                         }
                     } else {
                         this.userActions.push({actType: type, ctx})
@@ -402,28 +535,125 @@ export default {
                             }
                         }
                     )))
-            } else if(type=='finish'){
-                        this.userActions.push({actType: type, ctx})
-                        this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
-                            {
-                                type: 'putSaving',
-                                ctx: {
-                                    data: {
-                                        id: this.getSavesCounter,
-                                        userID: this.getUserData.authData.id,
-                                        examID: this.getCurrentExamID,
-                                        actions: this.userActions,
-                                        ticket: this.ticket.ticketNumber,
-                                        subject: this.ticket.subject,
-                                        startTime: this.startTime,
-                                        residualTime: this.timer
-                                    }
+
+            }else if(type == 'paused'){
+                this.step = 'pause'
+                if(this.timerInterval){
+                    clearInterval(this.timerInterval)
+                    this.timerInterval = undefined
+                }
+
+                this.userActions.push({ actType: type, ctx: { timestamp: Date.now() }})
+                this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                    {
+                        type: 'putSaving',
+                        ctx: {
+                            id: this.getCurrentSaving,
+                            data: {
+                                id: this.getCurrentSaving,
+                                userID: this.getUserData.authData.id,
+                                examID: this.getCurrentExamID,
+                                actions: this.userActions,
+                                ticket: this.ticket.ticketNumber,
+                                subject: this.ticket.subject,
+                                startTime: this.startTime,
+                                residualTime: this.timer
+                            }
+                        }
+                    }
+                )))
+            }else if(type == 'resumed'){
+                this.step = 'exam'
+                if(!this.timerInterval){
+                    if(this.timer!==null){
+                        this.timerInterval = setInterval(()=>{
+                            if(this.timer!=0){
+                                this.timer-=1
+                            } else {
+                                //! ОТПРАВКА
+                                this.sendAnswers('timeout')
+                            }
+                        },1000)
+                    }
+                    
+                    this.userActions.push({ actType: type, ctx: { timestamp: Date.now() }})
+                    this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                        {
+                            type: 'putSaving',
+                            ctx: {
+                                id: this.getCurrentSaving,
+                                data: {
+                                    id: this.getCurrentSaving,
+                                    userID: this.getUserData.authData.id,
+                                    examID: this.getCurrentExamID,
+                                    actions: this.userActions,
+                                    ticket: this.ticket.ticketNumber,
+                                    subject: this.ticket.subject,
+                                    startTime: this.startTime,
+                                    residualTime: this.timer
                                 }
                             }
-                        )))
-            }
+                        }
+                    )))
+                }
 
-            console.log(this.userActions);
+            }else if(type=='finish'){
+                this.userActions.push({actType: type, ctx})
+                this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                    {
+                        type: 'putSaving',
+                        ctx: {
+                            data: {
+                                id: this.getSavesCounter,
+                                userID: this.getUserData.authData.id,
+                                examID: this.getCurrentExamID,
+                                actions: this.userActions,
+                                ticket: this.ticket.ticketNumber,
+                                subject: this.ticket.subject,
+                                startTime: this.startTime,
+                                residualTime: this.timer
+                            }
+                        }
+                    }
+                )))
+            }else if(type == 'stop'){
+                this.step = 'stop'
+                this.blockSend = true
+                this.blockActionBtns = true
+                
+                this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                    {
+                        type: 'deleteSaving',
+                        ctx: {
+                            id: this.getCurrentSaving
+                        }
+                    }
+                )))
+
+                if(this.timerInterval){
+                    clearInterval(this.timerInterval)
+                    this.timerInterval = undefined
+                }
+                setTimeout(() => this.exitExam(true), 7000)
+            }else if(type == 'delete-exam'){
+                this.step = 'delete-exam'
+                this.blockSend = true
+                this.blockActionBtns = true
+                if(this.timerInterval){
+                    clearInterval(this.timerInterval)
+                    this.timerInterval = undefined
+                }
+                setTimeout(() => this.exitExam(true), 7000)
+            } else if(type == 'exclude-exam'){
+                this.step = 'exclude-exam'
+                this.blockSend = true
+                this.blockActionBtns = true
+                if(this.timerInterval){
+                    clearInterval(this.timerInterval)
+                    this.timerInterval = undefined
+                }
+                setTimeout(() => this.exitExam(true), 7000)
+            }
         },
 
         async beginExam(){
@@ -433,6 +663,17 @@ export default {
                 this.startTime = Date.now()
             }
             // Начало отсчёта времени (+уведомление сервера)
+
+            socket.emit('client-exam-additional', {
+                examID: this.getCurrentExamID,
+                userID: this.getUserData.authData.id,
+                subject: this.ticket.subject,
+                time: {
+                    start: Date.now(),
+                    value: this.savingAvaible && this.savingAvaible.actions.length ? this.savingAvaible.residualTime : this.getCurrentModuleExam.params.examTime*60
+                },
+                type: 'additional'
+            })
 
             if(!this.savingAvaible){
                 this.actionHandler('start', { timestamp: this.startTime })
@@ -684,7 +925,6 @@ export default {
                                 }
                             }
                         )))
-
                         console.log(response);
                     })
 
@@ -705,11 +945,11 @@ export default {
             }
         },
 
-        exitExam(){
+        exitExam(isStopping){
             if(!this.exitClaim){
                 // работа с комплексом экзаменов
                 console.log(this.getCurrentExamsList);
-                if(this.getCurrentExamsList){
+                if(this.getCurrentExamsList && !isStopping) {
 
                     console.log('checking next module');
                     this.setExamState(false)
@@ -981,7 +1221,7 @@ export default {
     grid-template-columns: 250px auto;
 }
 
-.pause, .timeout, .send{
+.pause, .timeout, .send, .stop, .delete-exam, .exclude-exam{
     width: 100%;
     height: 80vh;
     display: flex;

@@ -49,13 +49,14 @@ module.exports = defineConfig({
           "license": "license.md",
           "allowToChangeInstallationDirectory": true,
           "multiLanguageInstaller": true,
-          "runAfterFinish": false,
+          "runAfterFinish": true,
           "unicode": true
         },
         "mac" : {
           "icon" : "./public/icons/icon-stec.ico"
         }
-      }
+      },
+      nodeIntegration: true
     }
   }
 })

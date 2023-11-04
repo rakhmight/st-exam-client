@@ -7,7 +7,12 @@ export default {
         socketCode: undefined,
         deviceID: undefined,
         initializationProcess: false,
-        language: lang.ru
+        language: lang.uz_l,
+        exception: {
+            info: null,
+            status: false,
+            error: null
+        }
     },
     getters: {
         currentLang(state){
@@ -30,9 +35,15 @@ export default {
         },
         getInitializationProcess(state){
             return state.initializationProcess
+        },
+        getException(state){
+            return state.exception
         }
     },
     mutations: {
+        setException(state, value){
+            state.exception = value
+        },
         changeLang(state, newLang){
             if(newLang=='ru'){
                 state.language = lang.ru

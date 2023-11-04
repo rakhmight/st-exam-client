@@ -428,7 +428,7 @@ export default {
             const currentExam = this.getExams.find(ex => ex.id==this.exam.id)
             if(currentExam && currentExam.userAttempts){
                 const ticketsFA = currentExam.userAttempts.map(attempt=>{
-                    console.log(attempt);
+                    // console.log(attempt);
                     return {
                         subject: attempt.subject,
                         ticket: attempt.attempts.ticket
@@ -438,7 +438,7 @@ export default {
                 tickets.push(...ticketsFA)
             }
 
-            console.log(tickets);
+            // console.log(tickets);
 
             if(!this.getCurrentTickets){
                 await makeReq(`${this.getAdminServerIP}/api/exams/init`, 'POST', {

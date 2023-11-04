@@ -1,10 +1,15 @@
 <template>
     <div class="content exam-content" v-if="question">
         <div class="content__main">
-            <div class="question d-flex align-center" style="gap: 15px">
-                <v-icon color="var(--main-color)">mdi-help-circle-outline</v-icon>
-                <div class="ctx">
-                    {{ getExamLanguage=='ru' ? question.context.questionCtx.ru : getExamLanguage=='eng' ? question.context.questionCtx.eng : getExamLanguage=='custom' ? question.context.questionCtx.custom : getExamLanguage=='uz_k' ? question.context.questionCtx.uz_k : getExamLanguage=='uz_l' ? question.context.questionCtx.uz_l : getExamLanguage=='fr' ? question.context.questionCtx.fr : question.context.questionCtx.de }}
+            <div>
+                <div>
+                    <span style="color:#888; font-size: small;">ID: {{ question.id }}</span>
+                </div>
+                <div class="question d-flex align-center" style="gap: 15px">
+                    <v-icon color="var(--main-color)">mdi-help-circle-outline</v-icon>
+                    <div class="ctx">
+                        {{ getExamLanguage=='ru' ? question.context.questionCtx.ru : getExamLanguage=='eng' ? question.context.questionCtx.eng : getExamLanguage=='custom' ? question.context.questionCtx.custom : getExamLanguage=='uz_k' ? question.context.questionCtx.uz_k : getExamLanguage=='uz_l' ? question.context.questionCtx.uz_l : getExamLanguage=='fr' ? question.context.questionCtx.fr : question.context.questionCtx.de }}
+                    </div>
                 </div>
             </div>
 

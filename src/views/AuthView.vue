@@ -245,7 +245,7 @@
             </div>
 
             <div>
-                <span>ST Exam client v.1.1</span>
+                <span>ST Exam client v.{{ version }}</span>
             </div>
         </div>
 
@@ -289,11 +289,14 @@ export default {
             departmentsList: [],
 
             currentYear: undefined,
-            nextEducationYear: false
+            nextEducationYear: false,
+            version: undefined
         }
     },
     computed: mapGetters(['getInitializationProcess', 'getAuthServerIP', 'getAuthState', 'getAdminServerIP', 'getUserData', 'getUsersList', 'getDepartments', 'getDeviceID', 'getSocketCode', 'currentLang']),
     async mounted(){
+        this.version = process.env.VUE_APP_VERSION
+
         if(this.getInitializationProcess){
             socket.connect()
         } else {
@@ -459,7 +462,7 @@ export default {
                     if(user.userRole == 'teacher' || user.userRole == 'employee'){
                         if(user.roleProperties.department == this.userDepartment && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.firstName} ${user.bio.lastName} ${user.bio.patronymic}`,
+                                title: `${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
                                 value: user.id
                             })
                         }
@@ -470,7 +473,7 @@ export default {
                     if(user.userRole == 'student'){
                         if(this.getCourse(user.roleProperties.recieptDate) == this.userCourse && user.roleProperties.group == this.userGroup && user.roleProperties.educationForm == this.formOfStudy && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.firstName} ${user.bio.lastName} ${user.bio.patronymic}`,
+                                title: `${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
                                 value: user.id
                             })
                         }
@@ -481,7 +484,7 @@ export default {
                     if(user.userRole == 'enrollee'){
                         if(user.roleProperties.group == this.userGroup && user.roleProperties.educationForm == this.formOfStudy && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.firstName} ${user.bio.lastName} ${user.bio.patronymic}`,
+                                title: `${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
                                 value: user.id
                             })
                         }
@@ -496,6 +499,11 @@ export default {
     },
     watch:{
         getUsersList(){
+            this.usersList = []
+            this.choiseLists()
+        },
+        'getUsersList.length'(){
+            this.usersList = []
             this.choiseLists()
         },
         password(){

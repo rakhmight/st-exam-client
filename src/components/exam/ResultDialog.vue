@@ -121,7 +121,7 @@
                 </div>
               </td>
               <td>
-                <span>{{ `${getUserData.userData.bio.lastName} ${getUserData.userData.bio.firstName} ${getUserData.userData.bio.patronymic}` }}</span>
+                <span>{{ `${getUserData.userData.bio.firstName ? getUserData.userData.bio.firstName : ''} ${getUserData.userData.bio.lastName ? getUserData.userData.bio.lastName : ''} ${getUserData.userData.bio.patronymic ? getUserData.userData.bio.patronymic : ''}` }}</span>
               </td>
             </tr>
             

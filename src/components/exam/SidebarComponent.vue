@@ -29,7 +29,7 @@
                         <tbody>
                         <tr
                         v-for="(question, i) in ticket.questions"
-                        :key="i"
+                        :key="question.id"
                         :style="currentQuestion==question.id ? 'background-color: #ffffff21': ''"
                         @click="changeCurrentQuestion(question.id)"
                         :class="`map-${question.id}`"
@@ -106,11 +106,30 @@
             <v-tooltip>
                 <template v-slot:activator="{ props }">
                     <div v-bind="props" style="cursor: help;max-width: 220px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;">
-                        <span>{{ `${getUserData.userData.bio.lastName} ${getUserData.userData.bio.firstName} ${getUserData.userData.bio.patronymic}` }}</span>
+                        <span>{{ `${getUserData.userData.bio.firstName ? getUserData.userData.bio.firstName : ''} ${getUserData.userData.bio.lastName ? getUserData.userData.bio.lastName : ''} ${getUserData.userData.bio.patronymic ? getUserData.userData.bio.patronymic : ''}` }}</span>
                     </div>
                 </template>
-                <span>{{ `${getUserData.userData.bio.lastName} ${getUserData.userData.bio.firstName} ${getUserData.userData.bio.patronymic}` }}</span>
+                <span>{{ `${getUserData.userData.bio.firstName ? getUserData.userData.bio.firstName : ''} ${getUserData.userData.bio.lastName ? getUserData.userData.bio.lastName : ''} ${getUserData.userData.bio.patronymic ? getUserData.userData.bio.patronymic : ''}` }}</span>
             </v-tooltip>
+            
+            <div class="mt-2" style="font-size: 0.9rem;">
+                <div v-if="getUserData.userData.userRole == 'student'">
+                        <span>student of {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }} course {{ getUserData.userData.roleProperties.group }} group ({{ getUserData.userData.roleProperties.educationForm }})</span>
+                </div>
+                <div v-if="getUserData.userData.userRole == 'enrollee'">
+                    <span>enrollee of {{ getUserData.userData.roleProperties.group }} group ({{ getUserData.userData.roleProperties.admissionYear }}, {{ getUserData.userData.roleProperties.formOfEducation }})</span>
+                </div>
+                <div v-if="getUserData.userData.userRole == 'teacher'">
+                    <span>{{ getPosition(getUserData.userData.roleProperties.department,getUserData.userData.roleProperties.position) }} of {{ getDepartment(getUserData.userData.roleProperties.department) }} chair </span>
+                </div>
+                <div v-if="getUserData.userData.userRole == 'employee'">
+                        <span>{{ getPosition(getUserData.userData.roleProperties.department,getUserData.userData.roleProperties.position) }} of {{ getDepartment(getUserData.userData.roleProperties.department) }} department </span>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <p style="font-size: 0.9rem;">Login: {{ getUserData.authData.login }}</p>
+            </div>
         </div>
     </div>
 </template>
@@ -137,13 +156,53 @@ export default {
     components:{
         ResultDialog
     },
-    computed: mapGetters(['getUserData', 'currentLang']),
+    computed: mapGetters(['getUserData', 'currentLang', 'getDepartments']),
+    mounted(){
+        console.log(this.getUserData);
+    },
     methods:{
         mapOrient(){
             const target = document.querySelector(`.map-${this.currentQuestion}`)
             if(target){
                 target.scrollIntoView({behavior: "smooth"})
             }
+        },
+
+        // TODO:
+        getCourse(year){
+            year = +year
+            let nextEducationYear = false
+            let currentYear = new Date().getFullYear()
+            if(new Date().getMonth()>8){
+                nextEducationYear = true
+            }
+
+            if(nextEducationYear && currentYear-year!=3){
+                return (currentYear-year)+1
+            }
+            return currentYear-year
+        },
+
+        getDepartment(department){
+            const departmentName= this.getDepartments.find(item => item.id == department) || 'unknown'
+            return departmentName.name.ru || departmentName.id
+        },
+
+        getPosition(department, position){
+            const departments = this.getDepartments
+            let positionName = 'unknown'
+
+            departments.forEach(item=>{
+                if(item.id == department){
+                    item.positions.forEach(value=>{
+                        if(value.id==position){
+                            positionName = value.name.ru
+                        }
+                    })
+                }
+            })
+
+            return positionName
         }
     },
     watch:{

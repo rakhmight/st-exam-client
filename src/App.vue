@@ -36,6 +36,54 @@
               </v-list>
           </v-menu>
         </div>
+
+          <v-dialog
+          v-if="getException.status"
+          v-model="getException.status"
+          activator="parent"
+          width="auto"
+        >
+          <div class="error-card">
+            <div class="error-card__header d-flex flex-row align-center" style="gap:15px">
+              <div style="width: 50px;">
+                  <v-img src="@/assets/media/global-error.png"></v-img>
+              </div>
+              <div class="mt-1">
+                <span style="font-size: 1.4em; font-weight: 500; color: var(--special-color)">Error detected!</span>
+              </div>
+            </div>
+
+            <v-divider class="mt-3 mb-7"></v-divider>
+
+            <div class="error-card__content">
+              
+              <div class="d-flex align-center flex-row" style="gap: 5px">                
+                <v-icon size="22" color="var(--red-color)">mdi-alert</v-icon>
+                <p style="color: var(--red-color); font-weight: 600;">{{ getException.error }}</p>
+              </div>
+
+              <div class="d-flex align-center flex-row" style="gap: 5px">                
+                <v-icon size="18" color="#777">mdi-information</v-icon>
+                <p>Info: {{ getException.info }}</p>
+              </div>
+            </div>
+
+            <v-divider class="mt-3 mb-7"></v-divider>
+
+            <div class="w-100 d-flex justify-center mt-3">
+                <v-btn
+                  density="compact"
+                  width="200px"
+                  color="#d8a80d"
+                  class="d-flex align-center"
+                  @click="reloadApp()"
+                  >
+                    <v-icon size="17" color="#fff">mdi-exit-to-app</v-icon>
+                    <span style="color: #fff" class="ml-1">Reload</span>
+                </v-btn>
+              </div>
+          </div>
+        </v-dialog>
       </div>
     </v-main>
   </v-app>
@@ -63,12 +111,25 @@ export default {
   methods: {
     ...mapMutations(["setSavesCounter", 'changeLang', 'setUsersList']),
 
+    reloadApp(){
+      window.location.reload();
+    },
+
     setLanguage(lang){
         this.changeLang(lang)
         this.activeLang = lang
       }
   },
-  computed: mapGetters(['getInitializationProcess', 'getAdminServerIP', 'getUsersList']),
+  computed: mapGetters(['getInitializationProcess', 'getAdminServerIP', 'getUsersList', 'getException']),
+  // watch: {
+  //   'getException.status'(){
+  //     if(this.getException.status) {
+  //       console.log('EROOR');
+  //     } else {
+  //       'OK'
+  //     }
+  //   }
+  // },
   async mounted() {
 
     // Local DB init
@@ -190,5 +251,26 @@ html {
   overflow-x: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+
+
+.error-card{
+  padding: 20px;
+  width: 800px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.error-card__header {
+  position: relative;
+}
+.error-card__content{
+  max-height: 500px;
+  overflow-y: auto;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 </style>

@@ -24,6 +24,20 @@ export default {
         },
         setDepartments(state, value){
             state.departments = value
+        },
+        deleteExaminees(state, value){
+            value.map(examinee => {
+                if(examinee){
+                    const target = state.usersList.find(user => user.id == examinee)
+                    const index = state.usersList.indexOf(target)
+                    state.usersList.splice(index, 1)
+                }
+            })
+        },
+        deleteExaminee(state, value) {
+            const target = state.usersList.find(user => user.id == value)
+            const index = state.usersList.indexOf(target)
+            state.usersList.splice(index, 1)
         }
     },
     actions: {

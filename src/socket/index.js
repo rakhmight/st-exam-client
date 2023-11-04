@@ -2,6 +2,7 @@ import { io } from "socket.io-client";
 // Events
 import { connectEvent } from "./events/connect";
 import { disconnectEvent } from "./events/disconnect";
+import { management } from "./events/management";
 import { checkEvent } from "./events/check";
 
 const secretCode = localStorage.getItem('socket-code')
@@ -23,3 +24,4 @@ export const socket = io(URL, {
 connectEvent(socket)
 disconnectEvent(socket)
 checkEvent(socket, deviceID)
+management(socket)
