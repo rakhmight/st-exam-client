@@ -23,6 +23,7 @@
             :showResultDialog="showResultDialog"
             :exitExam="exitExam"
             :examResults="examResults"
+            :timer="timer"
             />
 
             <div></div>
@@ -235,9 +236,20 @@ export default {
         ...mapMutations(['setCurrentTickets', 'setCurrentExam', 'setCurrentExamID', 'setCurrentExamsList', 'setExamLanguage', 'setExamState', 'setCurrentSaving', 'updateSavesCounter', 'setCurrentModuleExam', 'updateCurrentExamsList', 'setUserData', 'setAuthState', 'setExamToken']),
 
         changeQuestion(data){
-            // Удаление заменяемого вопроса из ticket.questions, answers, answeredQuestion
-            console.log(data);
             if(this.ticket.questions.find(question => question.id == data.questionID)!=-1){
+
+                // Подставление вопроса в ticket.questions из ticket.additionalQuestions
+                const injectedQuestion = this.ticket.additionalQuestions.shift()
+                this.ticket.questions.push(injectedQuestion)
+
+                // Добавление данных в answers
+                const injectedAnswer = {
+                        id: injectedQuestion.id,
+                        answer: null
+                }
+                this.answers.push(injectedAnswer)
+
+                // Удаление заменяемого вопроса из ticket.questions, answers, answeredQuestion
                 const targetQ = this.ticket.questions.find(question => question.id == data.questionID)
                 const indexQ = this.ticket.questions.indexOf(targetQ)
                 console.log(this.ticket.questions);
@@ -260,17 +272,6 @@ export default {
                         this.answeredQuestion.splice(indexAQ, 1)
                     }
                 }
-
-                // Подставление вопроса в ticket.questions из ticket.additionalQuestions
-                const injectedQuestion = this.ticket.additionalQuestions.shift()
-                this.ticket.questions.push(injectedQuestion)
-
-                // Добавление данных в answers
-                const injectedAnswer = {
-                        id: injectedQuestion.id,
-                        answer: null
-                }
-                this.answers.push(injectedAnswer)
 
                 // добавление истории действий
                 this.userActions.push({ actType: 'change-question', ctx: { timestamp: Date.now(), changedQuestion: data.questionID, injectedQuestion: injectedQuestion.id }})
@@ -373,7 +374,7 @@ export default {
                         ctx: {
                             data: {
                                 id: this.getSavesCounter,
-                                userID: this.getUserData.id,
+                                userID: this.getUserData.authData.id,
                                 examID: this.getCurrentExamID,
                                 actions: this.savingAvaible.actions,
                                 ticket: this.ticket.ticketNumber,
@@ -407,7 +408,13 @@ export default {
 
             // показ UI
             this.UIDone = true
-            this.step = 'exam'
+
+            if(this.getCurrentExam.userStatus == 'paused'){
+                this.actionHandler('paused')
+            } else {
+                this.step = 'exam'
+                this.beginExam()
+            }
 
             // Проверка в Local DB на текущий процесс
             // this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
@@ -421,7 +428,6 @@ export default {
             // )))
 
             // После ответа beginExam()
-            this.beginExam()
             this.blockSavingProcess = false
 
             if(this.savingAvaible){
@@ -440,7 +446,7 @@ export default {
                     if(nextQuestion){
                         this.currentQuestion = nextQuestion
                     } else {
-                        this.sendAnswers()
+                        this.sendAnswers('send')
                     }
                 } else {
                     this.currentQuestion = this.ticket.questions[0].id
@@ -546,56 +552,78 @@ export default {
                 this.userActions.push({ actType: type, ctx: { timestamp: Date.now() }})
                 this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
                     {
-                        type: 'putSaving',
+                        type: 'deleteSaving',
                         ctx: {
-                            id: this.getCurrentSaving,
-                            data: {
-                                id: this.getCurrentSaving,
-                                userID: this.getUserData.authData.id,
-                                examID: this.getCurrentExamID,
-                                actions: this.userActions,
-                                ticket: this.ticket.ticketNumber,
-                                subject: this.ticket.subject,
-                                startTime: this.startTime,
-                                residualTime: this.timer
-                            }
+                            id: this.getCurrentSaving
                         }
                     }
                 )))
-            }else if(type == 'resumed'){
-                this.step = 'exam'
-                if(!this.timerInterval){
-                    if(this.timer!==null){
-                        this.timerInterval = setInterval(()=>{
-                            if(this.timer!=0){
-                                this.timer-=1
-                            } else {
-                                //! ОТПРАВКА
-                                this.sendAnswers('timeout')
-                            }
-                        },1000)
-                    }
-                    
-                    this.userActions.push({ actType: type, ctx: { timestamp: Date.now() }})
-                    this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
-                        {
-                            type: 'putSaving',
-                            ctx: {
-                                id: this.getCurrentSaving,
-                                data: {
-                                    id: this.getCurrentSaving,
-                                    userID: this.getUserData.authData.id,
-                                    examID: this.getCurrentExamID,
-                                    actions: this.userActions,
-                                    ticket: this.ticket.ticketNumber,
-                                    subject: this.ticket.subject,
-                                    startTime: this.startTime,
-                                    residualTime: this.timer
-                                }
-                            }
+                
+                // TODO: отправка сохранений
+                if(this.getUserData.authData){
+                    await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
+                        auth: {
+                            id: this.getUserData.authData.id,
+                            token: this.getUserData.authData.token.key,
+                        },
+                        saving: {
+                            id: this.getCurrentSaving,
+                            userID: this.getUserData.authData.id,
+                            examID: this.getCurrentExamID,
+                            actions: this.userActions,
+                            ticket: this.ticket.ticketNumber,
+                            subject: this.ticket.subject,
+                            startTime: this.startTime,
+                            residualTime: this.timer
                         }
-                    )))
+                    })
+                    .then(data=>{
+                        console.log(data);
+                        if(this.timerInterval){
+                            clearInterval(this.timerInterval)
+                            this.timerInterval = undefined
+                        }
+                        setTimeout(() => this.exitExam(true), 5000)
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    })
                 }
+
+            }else if(type == 'resumed'){
+                // this.step = 'exam'
+                // if(!this.timerInterval){
+                //     if(this.timer!==null){
+                //         this.timerInterval = setInterval(()=>{
+                //             if(this.timer!=0){
+                //                 this.timer-=1
+                //             } else {
+                //                 //! ОТПРАВКА
+                //                 this.sendAnswers('timeout')
+                //             }
+                //         },1000)
+                //     }
+                    
+                //     this.userActions.push({ actType: type, ctx: { timestamp: Date.now() }})
+                //     this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                //         {
+                //             type: 'putSaving',
+                //             ctx: {
+                //                 id: this.getCurrentSaving,
+                //                 data: {
+                //                     id: this.getCurrentSaving,
+                //                     userID: this.getUserData.authData.id,
+                //                     examID: this.getCurrentExamID,
+                //                     actions: this.userActions,
+                //                     ticket: this.ticket.ticketNumber,
+                //                     subject: this.ticket.subject,
+                //                     startTime: this.startTime,
+                //                     residualTime: this.timer
+                //                 }
+                //             }
+                //         }
+                //     )))
+                // }
 
             }else if(type=='finish'){
                 this.userActions.push({actType: type, ctx})
@@ -794,7 +822,7 @@ export default {
                         this.actionHandler('answering', { timestamp: Date.now(), currentQuestion: this.currentQuestion, answer: null })
                     }
                 } else if(nextQuestion===null){
-                    this.sendAnswers()
+                    this.sendAnswers('send')
                 }
             }else if(!this.getCurrentModuleExam.params.changeAnswerPossibility && !mode){
                 
@@ -846,7 +874,7 @@ export default {
                 if(!this.getCurrentModuleExam.params.changeAnswerPossibility){
                     const questionTarget = this.ticket.questions.find(q => q.id == questionID)
                     if(this.answeredQuestions.length == this.answers.length && !questionTarget.multipleAnswers){
-                        this.sendAnswers()
+                        this.sendAnswers('send')
                     }
                 }
             }

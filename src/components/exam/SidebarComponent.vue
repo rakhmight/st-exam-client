@@ -93,6 +93,8 @@
                 :examResults="examResults"
                 :answeredQuestions="answeredQuestions"
                 :ticket="ticket"
+                :timer="timer"
+                :answers="answers"
                 />
             </div>
         </div>
@@ -151,7 +153,8 @@ export default {
         sendAnswers: Function,
         showResultDialog: Boolean,
         exitExam: Function,
-        examResults: Object || undefined
+        examResults: Object || undefined,
+        timer: Number
     },
     components:{
         ResultDialog

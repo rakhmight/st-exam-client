@@ -79,7 +79,7 @@ const lang = {
             'и др.',
             'Экзамен завершён',
             'Экзамен ещё не начат',
-            'Данный пользователь этот проходит экзамен'
+            'Данный пользователь уже проходит этот экзамен'
         ],
         initView: [
             'Проверка зависимостей',
@@ -116,7 +116,7 @@ const lang = {
             'неверные ответы',
             'Количество правильных ответов',
             'Количество неверных ответов',
-            'Обучающийся',
+            'Экзаменуемый',
             'Абитуриент',
             'Преподаватель', // 25
             'Сотрудник',
@@ -136,10 +136,20 @@ const lang = {
             'вопрос с изображениями',
             'вопрос с выбираемой областью',
             'отвечено',
-            'Экзаменируемый', // 43
+            'Экзаменируемый',
             'Балл',
             'набранный вами балл',
             'макс. балл по билету',
+            'Потраченное время', // 47
+            'Вопросы',
+            'Неверно отвеченные вопросы',
+            'Вопросы, на которые дан неверный ответ',
+            'Вопрос и ответы',
+            'Не выбранный ответ',
+            'Ответ, выбранный вами',
+            'Верный ответ',
+            'Неверный ответ',
+            'Неверно указана область',
         ]
     },
     uz_l: {
@@ -222,7 +232,7 @@ const lang = {
             'va boshq.',
             "Imtihon yakunlandi",
             "Imtihon hali boshlanmagan",
-            "Ushbu foydalanuvchi imtihon topshirmoqda"
+            "Ushbu foydalanuvchi imtihoni topshirmoqda"
         ],
         initView: [
             "Bog'liklarni tekshirish",
@@ -283,6 +293,15 @@ const lang = {
             'Ball',
             'siz toplagan ball',
             'maks. chiptadagi ball',
+            "Savollar",
+            "Noto'g'ri javob berilgan savollar",
+            "Savollarga noto'g'ri javob berildi",
+            "Savol va javoblar",
+            'Tanlanmagan javob',
+            'Siz tanlagan javob',
+            "To'g'ri javob",
+            "Noto'g'ri javob",
+            "Ko'rsatilgan maydon noto'g'ri",
         ]
     }
 }

@@ -134,7 +134,7 @@
 
                     <div
                     class="d-flex flex-column w-100"
-                    style="gap:15px"
+                    style="gap:15px;"
                     v-if="userName"
                     >
                         <div class="d-flex align-center mt-2">
@@ -149,6 +149,7 @@
                         v-model="password"
                         :error="passwordError.value"
                         :error-messages="passwordError.msg"
+                        autofocus
                         ></v-text-field>
                     </div>
 
