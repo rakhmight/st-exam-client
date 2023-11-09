@@ -225,9 +225,9 @@ html {
 }
 
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 0px;
+  height: 0px;
   background-color: #b9b9b9;
-  display: none;
 }
 
 ::-webkit-scrollbar-thumb {

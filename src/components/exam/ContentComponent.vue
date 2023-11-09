@@ -8,7 +8,7 @@
                 <div class="question d-flex align-center" style="gap: 15px">
                     <v-icon color="var(--main-color)">mdi-help-circle-outline</v-icon>
                     <div class="ctx">
-                        {{ getExamLanguage=='ru' ? question.context.questionCtx.ru : getExamLanguage=='eng' ? question.context.questionCtx.eng : getExamLanguage=='custom' ? question.context.questionCtx.custom : getExamLanguage=='uz_k' ? question.context.questionCtx.uz_k : getExamLanguage=='uz_l' ? question.context.questionCtx.uz_l : getExamLanguage=='fr' ? question.context.questionCtx.fr : question.context.questionCtx.de }}
+                        {{ getExamLanguage=='ru' ? question.context.questionCtx.ru : getExamLanguage=='eng' ? question.context.questionCtx.eng : getExamLanguage=='custom' ? question.context.questionCtx.custom : getExamLanguage=='uz_k' ? question.context.questionCtx.uz_k : getExamLanguage=='uz_l' ? question.context.questionCtx.uz_l : getExamLanguage=='fr' ? question.context.questionCtx.fr : getExamLanguage=='de' ? question.context.questionCtx.de : 'Language not chose' }}
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                         </div>
 
                         <div class="ctx" v-if="getExamLanguage=='ru' && answer.answerCtx.ru || getExamLanguage=='eng' && answer.answerCtx.eng || getExamLanguage=='custom' && answer.answerCtx.custom || getExamLanguage=='uz_l' && answer.answerCtx.uz_l || getExamLanguage=='uz_k' && answer.answerCtx.uz_k || getExamLanguage=='fr' && answer.answerCtx.fr || getExamLanguage=='de' && answer.answerCtx.de" :style="choisedAnswer==answer.id ? 'border: 1px solid var(--main-color);background: #0d5fd80d;' : ''">
-                            {{ getExamLanguage=='ru' ? answer.answerCtx.ru : getExamLanguage=='eng' ? answer.answerCtx.eng : getExamLanguage=='custom' ? answer.answerCtx.custom : getExamLanguage=='uz_k' ? answer.answerCtx.uz_k : getExamLanguage=='uz_l' ? answer.answerCtx.uz_l : getExamLanguage=='fr' ? answer.answerCtx.fr : answer.answerCtx.de }}
+                            {{ getExamLanguage=='ru' ? answer.answerCtx.ru : getExamLanguage=='eng' ? answer.answerCtx.eng : getExamLanguage=='custom' ? answer.answerCtx.custom : getExamLanguage=='uz_k' ? answer.answerCtx.uz_k : getExamLanguage=='uz_l' ? answer.answerCtx.uz_l : getExamLanguage=='fr' ? answer.answerCtx.fr : getExamLanguage=='de' ? answer.answerCtx.de : 'Language not chose'}}
                         </div>
                         
                         <div style="width: 120px;" class="mt-2" v-if="getExamLanguage=='ru' && !answer.answerCtx.ru && answer.imagePreview || getExamLanguage=='eng' && !answer.answerCtx.eng && answer.imagePreview || getExamLanguage=='custom' && !answer.answerCtx.custom && answer.imagePreview || getExamLanguage=='uz_l' && !answer.answerCtx.uz_l && answer.imagePreview || getExamLanguage=='uz_k' && !answer.answerCtx.uz_k && answer.imagePreview || getExamLanguage=='fr' && !answer.answerCtx.fr && answer.imagePreview || getExamLanguage=='de' && !answer.answerCtx.de && answer.imagePreview">
@@ -78,7 +78,7 @@
                             ></v-checkbox>
                         </div>
                         <div class="ctx" v-if="getExamLanguage=='ru' && answer.answerCtx.ru || getExamLanguage=='eng' && answer.answerCtx.eng || getExamLanguage=='custom' && answer.answerCtx.custom || getExamLanguage=='uz_l' && answer.answerCtx.uz_l || getExamLanguage=='uz_k' && answer.answerCtx.uz_k || getExamLanguage=='fr' && answer.answerCtx.fr || getExamLanguage=='de' && answer.answerCtx.de" :style="choisedAnswers.indexOf(answer.id)!=-1 ? 'border: 1px solid var(--main-color);background: #0d5fd80d;' : ''">
-                            {{ getExamLanguage=='ru' ? answer.answerCtx.ru : getExamLanguage=='eng' ? answer.answerCtx.eng : getExamLanguage=='custom' ? answer.answerCtx.custom : getExamLanguage=='uz_k' ? answer.answerCtx.uz_k : getExamLanguage=='uz_l' ? answer.answerCtx.uz_l : getExamLanguage=='fr' ? answer.answerCtx.fr : answer.answerCtx.de }}
+                            {{ getExamLanguage=='ru' ? answer.answerCtx.ru : getExamLanguage=='eng' ? answer.answerCtx.eng : getExamLanguage=='custom' ? answer.answerCtx.custom : getExamLanguage=='uz_k' ? answer.answerCtx.uz_k : getExamLanguage=='uz_l' ? answer.answerCtx.uz_l : getExamLanguage=='fr' ? answer.answerCtx.fr : getExamLanguage=='de' ? answer.answerCtx.de : 'Language not chose' }}
                         </div>
                         
                         
@@ -176,7 +176,6 @@ export default {
                     this.giveAnswer(this.question.id, this.choisedAnswer)
                 }
             } else if(answerClone && !this.blockSavingProcess){
-                console.log('there!2');
                 if(
                     !this.question.multipleAnswers && answerClone.answer!==null && !answerClone.isChecked ||
                     !this.question.multipleAnswers && answerClone.answer===null && !answerClone.isChecked
@@ -232,7 +231,6 @@ export default {
                 }
             } else if(answerClone && !this.blockSavingProcess){
 
-                console.log('there!1');
                 if(
                     this.question.multipleAnswers && answerClone.answer!==null && !answerClone.isChecked ||
                     this.question.multipleAnswers && answerClone.answer===null && !answerClone.isChecked

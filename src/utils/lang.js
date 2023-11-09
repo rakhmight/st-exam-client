@@ -42,7 +42,10 @@ const lang = {
             'Сотрудник',
             'Очная форма обучения',
             'Заочная форма обучения',
-            'Магистратура'
+            'Магистратура',
+
+            'группа', // 30
+            'курс'
         ],
         coordinatorView: [
             'У вас нет активных экзаменов',
@@ -140,16 +143,16 @@ const lang = {
             'Балл',
             'набранный вами балл',
             'макс. балл по билету',
-            'Потраченное время', // 47
+            'Потраченное время',
             'Вопросы',
             'Неверно отвеченные вопросы',
-            'Вопросы, на которые дан неверный ответ',
-            'Вопрос и ответы',
+            'Вопрос и ответы', // 50
             'Не выбранный ответ',
             'Ответ, выбранный вами',
             'Верный ответ',
             'Неверный ответ',
             'Неверно указана область',
+            'Время, отведённое для ознакомления с результатом'
         ]
     },
     uz_l: {
@@ -195,7 +198,10 @@ const lang = {
             "Xodim",
             "Kunduzgi ta'lim",
             "Sirtqi ta'lim",
-            'Magistratura'
+            'Magistratura',
+
+            'guruh', // 30
+            'kurs'
         ],
         coordinatorView: [
             "Sizda faol imtihonlar yo'q",
@@ -289,19 +295,19 @@ const lang = {
             "rasmlar bilan savol",
             'tanlanadigan maydon bilan savol',
             'javob berildi',
-            "Imtihon oluvchi", // 44
+            "Imtihon oluvchi",
             'Ball',
             'siz toplagan ball',
             'maks. chiptadagi ball',
             "Savollar",
             "Noto'g'ri javob berilgan savollar",
-            "Savollarga noto'g'ri javob berildi",
-            "Savol va javoblar",
+            "Savol va javoblar", // 50
             'Tanlanmagan javob',
             'Siz tanlagan javob',
             "To'g'ri javob",
             "Noto'g'ri javob",
             "Ko'rsatilgan maydon noto'g'ri",
+            "Natijani ko'rib chiqish uchun ajratilgan vaqt"
         ]
     }
 }

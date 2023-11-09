@@ -35,7 +35,7 @@
                   <span class="ml-1">{{ formatTime(resultTimer) }}</span>
                 </div>
               </template>
-              <span>Время, отведённое для ознакомления с результатом</span>
+              <span>{{ currentLang.examView[56] }}</span>
             </v-tooltip>
           </div>
         </div>
@@ -226,14 +226,14 @@
             v-if="getCurrentModuleExam.params.displayedResultParams.indexOf('wrongQA')!=-1">
               <div class="d-flex align-center">
                   <v-icon size="17" color="var(--main-color)">mdi-ab-testing</v-icon>
-                  <span class="td-title ml-1" style="font-size: 1.15em;">{{ currentLang.examView[50] }}:</span>
+                  <span class="td-title ml-1" style="font-size: 1.15em;">{{ currentLang.examView[49] }}:</span>
               </div>
               <table
               class="special-table w-100"
               >
                 <tr>
                   <th style="color: #777; font-size: 0.9rem">ID</th>
-                  <th style="color: #777; font-size: 0.9rem;">{{ currentLang.examView[51] }}</th>
+                  <th style="color: #777; font-size: 0.9rem;">{{ currentLang.examView[50] }}</th>
                 </tr>
 
                 <tr
@@ -258,8 +258,8 @@
                           <v-icon v-bind="props" color="#777" style="font-size: medium; overflow: unset;" v-if="!answerIsChoice(fault.id, answer.id)">mdi-circle-outline</v-icon>
                           <v-icon v-bind="props" color="var(--main-color)" style="font-size: medium; overflow: unset;" v-else>mdi-circle</v-icon>
                         </template>
-                        <span v-if="!answerIsChoice(fault.id, answer.id)" style="cursor: help">{{ currentLang.examView[52] }}</span>
-                        <span v-else>{{ currentLang.examView[53] }}</span>
+                        <span v-if="!answerIsChoice(fault.id, answer.id)" style="cursor: help">{{ currentLang.examView[51] }}</span>
+                        <span v-else>{{ currentLang.examView[52] }}</span>
                         </v-tooltip>
 <!--  -->
                         <p>{{ answer.ctx }}</p>
@@ -269,14 +269,14 @@
                           <v-icon v-bind="props" color="green" style="font-size: medium; overflow: unset;" v-if="answerIsCorrect(fault.id, answer.id)">mdi-check-circle</v-icon>
                           <v-icon v-bind="props" color="var(--red-color)" style="font-size: medium; overflow: unset;" v-else>mdi-close-circle</v-icon>
                         </template>
-                        <span v-if="answerIsCorrect(fault.id, answer.id)">{{ currentLang.examView[54] }}</span>
-                        <span v-else>{{ currentLang.examView[55] }}</span>
+                        <span v-if="answerIsCorrect(fault.id, answer.id)">{{ currentLang.examView[53] }}</span>
+                        <span v-else>{{ currentLang.examView[54] }}</span>
                         </v-tooltip>
                       </div>
                     </div>
                     <div v-else class="d-flex align-center" style="gap: 5px">
                       <v-icon color="var(--red-color)" style="font-size: medium;">mdi-image-filter-center-focus-weak</v-icon>
-                      <p>{{ currentLang.examView[56] }}</p>
+                      <p>{{ currentLang.examView[55] }}</p>
                     </div>
                   </td>
                 </tr>

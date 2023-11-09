@@ -29,9 +29,10 @@
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        :placeholder="currentLang.authView[2]"
+                        :placeholder="`  ${currentLang.authView[2]}`"
                         :items="roles"
                         v-model="userRole"
+                        autofocus
                         ></v-select>
                     </div>
 
@@ -48,9 +49,10 @@
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        :placeholder="currentLang.authView[4]"
+                        :placeholder="`  ${currentLang.authView[4]}`"
                         :items="forms"
                         v-model="formOfStudy"
+                        autofocus
                         ></v-select>
                     </div>
 
@@ -67,9 +69,10 @@
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        :placeholder="currentLang.authView[6]"
+                        :placeholder="`  ${currentLang.authView[6]}`"
                         :items="courses"
                         v-model="userCourse"
+                        autofocus
                         ></v-select>
                     </div>
 
@@ -86,9 +89,10 @@
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        :placeholder="currentLang.authView[8]"
+                        :placeholder="`  ${currentLang.authView[8]}`"
                         :items="groups"
                         v-model="userGroup"
+                        autofocus
                         ></v-select>
                     </div>
 
@@ -106,9 +110,10 @@
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        :placeholder="userRole=='employee' ? currentLang.authView[11] : currentLang.authView[12]"
+                        :placeholder="userRole=='employee' ? `  ${currentLang.authView[11]}` : `  ${currentLang.authView[12]}`"
                         :items="departmentsList"
                         v-model="userDepartment"
+                        autofocus
                         ></v-select>
                     </div>
 
@@ -125,10 +130,12 @@
                         color="var(--main-color)"
                         density="compact"
                         variant="outlined"
-                        :placeholder="currentLang.authView[14]"
+                        :placeholder="`  ${currentLang.authView[14]}`"
                         :items="usersList"
                         v-model="userName"
                         :no-data-text="currentLang.authView[15]"
+                        autofocus
+                        class="selectScroll"
                         ></v-select>
                     </div>
 
@@ -144,7 +151,7 @@
                         <v-text-field
                         variant="outlined"
                         density="compact"
-                        :placeholder="currentLang.authView[17]"
+                        :placeholder="`  ${currentLang.authView[17]}`"
                         color="var(--main-color)"
                         v-model="password"
                         :error="passwordError.value"
@@ -403,19 +410,19 @@ export default {
             this.getUsersList.map(user => {
                 const targetRole = rolesList.find(role => role == user.userRole)
                 if(!targetRole) rolesList.push(user.userRole)
-
+//l
                 if(user.userRole == 'student' || user.userRole == 'enrollee'){
                     const targetForm = user.userRole == 'student' ? formsList.find(form => form == user.roleProperties.educationForm) : formsList.find(form => form == user.roleProperties.formOfEducation)
                     if(!targetForm) formsList.push(user.userRole == 'student' ? user.roleProperties.educationForm : user.roleProperties.formOfEducation)
 
                     if(user.userRole == 'student'){
                         const userCourse = getCourse(user.roleProperties.recieptDate)
-                        const targetCourse = coursesList.find(course => course == userCourse)
-                        if(!targetCourse) coursesList.push(userCourse)
+                        const targetCourse = coursesList.find(course => course.value == userCourse)
+                        if(!targetCourse) coursesList.push({ title: `${userCourse}-${this.currentLang.authView[31]}`, value: userCourse })
                     }
 
-                    const targetGroup = groupsList.find(group => group == user.roleProperties.group)
-                    if(!targetGroup) groupsList.push(user.roleProperties.group)
+                    const targetGroup = groupsList.find(group => group.value == user.roleProperties.group)
+                    if(!targetGroup) groupsList.push({ title: (''+user.roleProperties.group).length == 1 ? `${getCourse(user.roleProperties.recieptDate)}0${user.roleProperties.group} ${this.currentLang.authView[30]}` : `${getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group} ${this.currentLang.authView[30]}`, value: user.roleProperties.group })
                 }
 
                 if(user.userRole == 'teacher' || user.userRole == 'employee') {
@@ -499,6 +506,11 @@ export default {
         }
     },
     watch:{
+
+        currentLang(){
+            this.choiseLists()
+        },
+
         getUsersList(){
             this.usersList = []
             this.choiseLists()
@@ -689,6 +701,7 @@ export default {
   justify-content: space-between;
   justify-items: center;
 }
+
 </style>
 
 <style>
