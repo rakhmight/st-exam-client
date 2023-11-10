@@ -473,6 +473,7 @@ export default {
                                 this.diniedExam(data.message)
                             } else {
                                 this.setCurrentTickets(data.data.tickets)
+                                console.log(this.getCurrentTickets);
                                 this.setCurrentExamID(this.exam.id)
                                 this.launchPrepareProcess()
                             }

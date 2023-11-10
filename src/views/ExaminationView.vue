@@ -1004,7 +1004,8 @@ export default {
                         this.$router.push('/auth')
                     }
                 } else {
-                            
+                         
+                    this.setCurrentModuleExam(undefined)   
                     this.setExamState(false)
                     this.setExamLanguage(undefined)
                     this.setCurrentExamsList(undefined)

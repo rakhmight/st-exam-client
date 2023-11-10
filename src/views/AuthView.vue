@@ -410,7 +410,7 @@ export default {
             this.getUsersList.map(user => {
                 const targetRole = rolesList.find(role => role == user.userRole)
                 if(!targetRole) rolesList.push(user.userRole)
-//l
+
                 if(user.userRole == 'student' || user.userRole == 'enrollee'){
                     const targetForm = user.userRole == 'student' ? formsList.find(form => form == user.roleProperties.educationForm) : formsList.find(form => form == user.roleProperties.formOfEducation)
                     if(!targetForm) formsList.push(user.userRole == 'student' ? user.roleProperties.educationForm : user.roleProperties.formOfEducation)
@@ -449,11 +449,11 @@ export default {
             else this.formOfStudy = undefined
 
             this.courses = coursesList
-            if(coursesList.length == 1 && this.formOfStudy) this.userCourse = coursesList[0]
+            if(coursesList.length == 1 && this.formOfStudy) this.userCourse = coursesList[0].value
             else this.userCourse = undefined
 
             this.groups = groupsList
-            if(groupsList.length == 1 && this.userCourse) this.userGroup = groupsList
+            if(groupsList.length == 1 && this.userCourse) this.userGroup = groupsList[0].value
             else this.userGroup = undefined
 
             this.departmentsList = departmentsList

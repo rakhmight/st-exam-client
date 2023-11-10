@@ -29,7 +29,7 @@
                     <div style="display: grid; grid-template-columns: 20px auto; justify-content: end;">
                         <div><v-icon size="18" color="var(--main-color)">mdi-ticket-confirmation-outline</v-icon></div>
                         <div>
-                            <span>{{ currentLang.prepareView[6] }}: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? getTicketsCount() : getCurrentTickets[0].ticketNumber }}</span></span>
+                            <span>{{ currentLang.prepareView[6] }}: <span style="color: var(--main-color)">{{ getCurrentModuleExam ? getTicketsCount() : getCurrentTickets[0].ticketNumber ? getCurrentTickets[0].ticketNumber : 'unknown' }}</span></span>
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,9 @@ export default {
 
         getTicketsCount(){
             const currentTicket = this.getCurrentTickets.find(ticket => ticket.subject == this.getCurrentModuleExam.subject)
-            return currentTicket.ticketNumber
+            if(currentTicket) return currentTicket.ticketNumber
+            else return 'unknown'
+            
         },
 
         getSubjectName(id){
@@ -181,6 +183,9 @@ export default {
         if(!this.getCurrentTickets){
             this.$router.push('/coordinator')
         }
+
+        console.log(this.getCurrentModuleExam);
+        console.log(this.getCurrentTickets);
 
         if(!this.getCurrentExam){
             this.getExams.forEach(exam=>{
