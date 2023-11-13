@@ -400,11 +400,27 @@ export default {
             }
         },
 
+        makeGroupsList(){
+            const groupsList = []
+
+            this.getUsersList.map(user => {
+                if(user.userRole == 'student' || user.userRole == 'enrollee'){
+                    const targetGroup = groupsList.find(group => group.value == user.roleProperties.group)
+
+                    if(!targetGroup && getCourse(user.roleProperties.recieptDate) == this.userCourse) groupsList.push({
+                        title: (''+user.roleProperties.group).length == 1 ? `${getCourse(user.roleProperties.recieptDate)}0${user.roleProperties.group} ${this.currentLang.authView[30]}` : `${getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group} ${this.currentLang.authView[30]}`,
+                        value: user.roleProperties.group
+                    })
+                }
+            })
+            
+            this.groups = groupsList
+        },
+
         choiseLists(){
             const rolesList = []
             const formsList = []
             const coursesList = []
-            const groupsList = []
             const departmentsList = []
 
             this.getUsersList.map(user => {
@@ -421,8 +437,7 @@ export default {
                         if(!targetCourse) coursesList.push({ title: `${userCourse}-${this.currentLang.authView[31]}`, value: userCourse })
                     }
 
-                    const targetGroup = groupsList.find(group => group.value == user.roleProperties.group)
-                    if(!targetGroup) groupsList.push({ title: (''+user.roleProperties.group).length == 1 ? `${getCourse(user.roleProperties.recieptDate)}0${user.roleProperties.group} ${this.currentLang.authView[30]}` : `${getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group} ${this.currentLang.authView[30]}`, value: user.roleProperties.group })
+                    this.makeGroupsList()
                 }
 
                 if(user.userRole == 'teacher' || user.userRole == 'employee') {
@@ -452,13 +467,12 @@ export default {
             if(coursesList.length == 1 && this.formOfStudy) this.userCourse = coursesList[0].value
             else this.userCourse = undefined
 
-            this.groups = groupsList
-            if(groupsList.length == 1 && this.userCourse) this.userGroup = groupsList[0].value
-            else this.userGroup = undefined
-
             this.departmentsList = departmentsList
             if(departmentsList.length == 1 && !formsList.length && this.userRole) this.userDepartment = departmentsList[0]
             else this.userDepartment = undefined
+            
+            if(this.groups.length == 1 && this.userCourse) this.userGroup = this.groups[0].value
+            else this.userGroup = undefined
 
         },
 
@@ -508,16 +522,20 @@ export default {
     watch:{
 
         currentLang(){
+            this.usersList = []
             this.choiseLists()
+            this.sortUsers()
         },
 
         getUsersList(){
             this.usersList = []
             this.choiseLists()
+            this.sortUsers()
         },
         'getUsersList.length'(){
             this.usersList = []
             this.choiseLists()
+            this.sortUsers()
         },
         password(){
 
@@ -529,6 +547,10 @@ export default {
             } else {
                 this.blockBtn = true
             }
+        },
+
+        userCourse(){
+            this.makeGroupsList()
         },
 
         userGroup(){

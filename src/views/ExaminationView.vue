@@ -63,21 +63,50 @@
                 <div>
                     <v-img width="90px" src="@/assets/media/stop.png"></v-img>
                 </div>
-                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">Administrator stop your exam</span>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[57] }}</span>
             </div>
 
             <div class="delete-exam" v-if="step=='delete-exam'">
                 <div>
                     <v-img width="90px" src="@/assets/media/warning.png"></v-img>
                 </div>
-                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">Administrator has delete that exam</span>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[58] }}</span>
+            </div>
+
+            <div class="no-signal" v-if="step=='no-signal'">
+                <div>
+                    <v-img width="90px" src="@/assets/media/no-signal.png"></v-img>
+                </div>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[59] }}</span>
+
+                <v-btn
+                density="compact"
+                width="200px"
+                :color="resendLoader ? '#eee' : 'var(--main-color)'"
+                class="d-flex align-center mt-4"
+                style="overflow: hidden;"
+                @click="trySendSaving()"
+                :disabled="resendLoader"
+                >
+                    <v-icon v-if="!resendLoader" size="17" color="#fff">mdi-send</v-icon>
+                    <span v-if="!resendLoader" style="color: #fff" class="ml-1">{{ currentLang.examView[60] }}</span>
+                    
+                    <v-progress-circular
+                        :width="1"
+                        size="15"
+                        color="var(--main-color)"
+                        indeterminate
+                        v-if="resendLoader"
+                        style="overflow: hidden;"
+                    ></v-progress-circular>
+                </v-btn>
             </div>
             
             <div class="exclude-exam" v-if="step=='exclude-exam'">
                 <div>
                     <v-img width="90px" src="@/assets/media/kick.png"></v-img>
                 </div>
-                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">Administrator excluded you from the exam</span>
+                <span class="mt-7" style="color:#444; text-transform:uppercase; font-weight: 500;">{{ currentLang.examView[61] }}</span>
             </div>
 
             <div class="timeout" v-if="step=='timeout'">
@@ -127,6 +156,7 @@ import { socket } from '@/socket';
 export default {
     data(){
         return {
+            resendLoader: false,
             ticket: null,
             answers: null,
             timer: null,
@@ -454,6 +484,52 @@ export default {
             }
         },
 
+        async trySendSaving(){
+            this.resendLoader = true
+            await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
+                auth: {
+                    id: this.getUserData.authData.id,
+                    token: this.getUserData.authData.token.key,
+                },
+                saving: {
+                    id: this.getCurrentSaving,
+                    userID: this.getUserData.authData.id,
+                    examID: this.getCurrentExamID,
+                    actions: this.userActions,
+                    ticket: this.ticket.ticketNumber,
+                    subject: this.ticket.subject,
+                    startTime: this.startTime,
+                    residualTime: this.timer
+                }
+            })
+            .then(data=>{
+                console.log(data)
+                this.step = 'exam'
+                if(!this.timerInterval){
+                    if(this.timer!==null){
+                        this.timerInterval = setInterval(()=>{
+                            if(this.timer!=0){
+                                this.timer-=1
+                            } else {
+                                //! ОТПРАВКА
+                                this.sendAnswers('timeout')
+                            }
+                        },1000)
+                    }
+                }
+                this.resendLoader = false
+            })
+            .catch(error => {
+                console.error(error);
+                this.step = 'no-signal'
+                if(this.timerInterval){
+                    clearInterval(this.timerInterval)
+                    this.timerInterval = undefined
+                }
+                this.resendLoader = false
+            })
+        },
+
         async actionHandler(type, ctx){
             if(type=='start'){
                     // Если нет сохранения данного процесса
@@ -494,7 +570,7 @@ export default {
                         ){
                             this.userActions[this.userActions.length-1].ctx.answer = ctx.answer
                             
-                            // TODO: отправка сохранений
+                            // отправка сохранений
                             await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
                                 auth: {
                                     id: this.getUserData.authData.id,
@@ -516,6 +592,11 @@ export default {
                             })
                             .catch(error => {
                                 console.error(error);
+                                this.step = 'no-signal'
+                                if(this.timerInterval){
+                                    clearInterval(this.timerInterval)
+                                    this.timerInterval = undefined
+                                }
                             })
                             
                         }
@@ -559,7 +640,6 @@ export default {
                     }
                 )))
                 
-                // TODO: отправка сохранений
                 if(this.getUserData.authData){
                     await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
                         auth: {
@@ -1250,7 +1330,7 @@ export default {
     grid-template-columns: 250px auto;
 }
 
-.pause, .timeout, .send, .stop, .delete-exam, .exclude-exam{
+.pause, .timeout, .send, .stop, .delete-exam, .exclude-exam, .no-signal{
     width: 100%;
     height: 80vh;
     display: flex;

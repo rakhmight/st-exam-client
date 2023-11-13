@@ -152,7 +152,13 @@ const lang = {
             'Верный ответ',
             'Неверный ответ',
             'Неверно указана область',
-            'Время, отведённое для ознакомления с результатом'
+            'Время, отведённое для ознакомления с результатом', // 56
+
+            'Администратор остановил ваш экзамен',
+            'Администратор удалали этот экзамен',
+            'Потерено соединение с сервером. Обратитесь к администратору',
+            'Отправить',
+            'Аминистратор исключил вас из списка экзаменуемых',
         ]
     },
     uz_l: {
@@ -261,7 +267,7 @@ const lang = {
             "Oson",
             "O'rtacha",
             "Qiyin",
-            "Savol vaqti",
+            "Savol vaqti", // 10
             "Savollar",
             "Vaqt",
             "cheklanmagan",
@@ -271,7 +277,7 @@ const lang = {
             "Baho",
             "Foiz",
             "Savollar",
-            "to'g'ri javoblar",
+            "to'g'ri javoblar", // 20
             "noto'g'ri javoblar",
             "To'g'ri javoblar soni",
             "Noto'g'ri javoblar soni",
@@ -281,7 +287,7 @@ const lang = {
             "Xodim",
             "Ta'lim shakli",
             "Kurs",
-            "Guruh",
+            "Guruh", // 30
             'Kafedra',
             "Bo'lim",
             "Javoblarni ko'rib chiqish uchun yuborish",
@@ -291,7 +297,7 @@ const lang = {
             'magistratura',
             "Savollar",
             'Savollarni mazmuni',
-            "oddiy savol",
+            "oddiy savol", // 40
             "rasmlar bilan savol",
             'tanlanadigan maydon bilan savol',
             'javob berildi',
@@ -307,7 +313,12 @@ const lang = {
             "To'g'ri javob",
             "Noto'g'ri javob",
             "Ko'rsatilgan maydon noto'g'ri",
-            "Natijani ko'rib chiqish uchun ajratilgan vaqt"
+            "Natijani ko'rib chiqish uchun ajratilgan vaqt",
+            "Administrator imtihoningizni to'xtatdi",
+            "Administrator bu imtihonni o'chirib tashladi",
+            "Serverga ulanish uzildi. Administratorga murojaat qiling",
+            "Yuborish",
+            "Administrator sizni imtihon topshiruvchilar ro'yxatidan olib tashladi"
         ]
     }
 }
