@@ -334,14 +334,22 @@ export default {
         },
 
         back(){
-            this.userRole = undefined
-            this.userDepartment = undefined
-            this.userCourse = undefined
-            this.userGroup = undefined
-            this.userName = undefined
-            this.password = undefined
+            if(this.password) this.password = undefined
+            else if(this.userName) this.userName = undefined
+            else if(this.userGroup) this.userGroup = undefined
+            else if(this.userCourse) this.userCourse = undefined
+            else if(this.formOfStudy) this.formOfStudy = undefined
+            else if(this.userDepartment) this.userDepartment = undefined
+            else if(this.userRole) this.userRole = undefined
+
+            // this.userRole = undefined
+            // this.userDepartment = undefined
+            // this.userCourse = undefined
+            // this.userGroup = undefined
+            // this.userName = undefined
+            // this.password = undefined
+            // this.formOfStudy = undefined
             this.blockBtn = true
-            this.formOfStudy = undefined
         },
 
         getCourse(year){
@@ -407,14 +415,14 @@ export default {
                 if(user.userRole == 'student' || user.userRole == 'enrollee'){
                     const targetGroup = groupsList.find(group => group.value == user.roleProperties.group)
 
-                    if(!targetGroup && getCourse(user.roleProperties.recieptDate) == this.userCourse) groupsList.push({
+                    if(!targetGroup && getCourse(user.roleProperties.recieptDate) == this.userCourse && user.userRole == this.userRole) groupsList.push({
                         title: (''+user.roleProperties.group).length == 1 ? `${getCourse(user.roleProperties.recieptDate)}0${user.roleProperties.group} ${this.currentLang.authView[30]}` : `${getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group} ${this.currentLang.authView[30]}`,
                         value: user.roleProperties.group
                     })
                 }
             })
             
-            this.groups = groupsList
+            this.groups = groupsList.sort((a, b) => a.value - b.value)
         },
 
         choiseLists(){
@@ -463,7 +471,7 @@ export default {
             if(formsList.length == 1 && !departmentsList.length && this.userRole) this.formOfStudy = formsList[0]
             else this.formOfStudy = undefined
 
-            this.courses = coursesList
+            this.courses = coursesList.sort((a, b) => a.value - b.value)
             if(coursesList.length == 1 && this.formOfStudy) this.userCourse = coursesList[0].value
             else this.userCourse = undefined
 

@@ -106,7 +106,7 @@ const lang = {
             'Средний',
             'Трудный',
             'Время вопроса',
-            'Вопросы',
+            'Вопросы', // 10
             'Время',
             'не ограничено',
             'Предмет',
@@ -116,17 +116,17 @@ const lang = {
             'Процентное соотношение',
             'Вопросы',
             'верные ответы',
-            'неверные ответы',
+            'неверные ответы', // 20
             'Количество правильных ответов',
             'Количество неверных ответов',
             'Экзаменуемый',
             'Абитуриент',
-            'Преподаватель', // 25
+            'Преподаватель',
             'Сотрудник',
             'Форма обучения',
             'Курс',
             'Группа',
-            'Кафедра',
+            'Кафедра', // 30
             'Отдел',
             'Отправка ответов на проверку',
             'Выйти',
@@ -136,10 +136,10 @@ const lang = {
             'Вопросы',
             'Контекст ?-ов',
             'простой вопрос',
-            'вопрос с изображениями',
+            'вопрос с изображениями', // 40
             'вопрос с выбираемой областью',
             'отвечено',
-            'Экзаменируемый',
+            'Экзаменуемый',
             'Балл',
             'набранный вами балл',
             'макс. балл по билету',
@@ -153,11 +153,10 @@ const lang = {
             'Неверный ответ',
             'Неверно указана область',
             'Время, отведённое для ознакомления с результатом', // 56
-
             'Администратор остановил ваш экзамен',
             'Администратор удалали этот экзамен',
             'Потерено соединение с сервером. Обратитесь к администратору',
-            'Отправить',
+            'Отправить', // 60
             'Аминистратор исключил вас из списка экзаменуемых',
         ]
     },
@@ -267,8 +266,8 @@ const lang = {
             "Oson",
             "O'rtacha",
             "Qiyin",
-            "Savol vaqti", // 10
-            "Savollar",
+            "Savol vaqti", 
+            "Savollar", // 10
             "Vaqt",
             "cheklanmagan",
             'Fan',
@@ -277,8 +276,8 @@ const lang = {
             "Baho",
             "Foiz",
             "Savollar",
-            "to'g'ri javoblar", // 20
-            "noto'g'ri javoblar",
+            "to'g'ri javoblar", 
+            "noto'g'ri javoblar", // 20
             "To'g'ri javoblar soni",
             "Noto'g'ri javoblar soni",
             "Imtihon topshiruvchi",
@@ -287,8 +286,8 @@ const lang = {
             "Xodim",
             "Ta'lim shakli",
             "Kurs",
-            "Guruh", // 30
-            'Kafedra',
+            "Guruh", 
+            'Kafedra', // 30
             "Bo'lim",
             "Javoblarni ko'rib chiqish uchun yuborish",
             'Chiqish',
@@ -297,18 +296,19 @@ const lang = {
             'magistratura',
             "Savollar",
             'Savollarni mazmuni',
-            "oddiy savol", // 40
-            "rasmlar bilan savol",
+            "oddiy savol",
+            "rasmlar bilan savol",  // 40
             'tanlanadigan maydon bilan savol',
             'javob berildi',
-            "Imtihon oluvchi",
+            "Imtihon topshiruvchi",
             'Ball',
             'siz toplagan ball',
             'maks. chiptadagi ball',
+            "Sarflangan vaqt",
             "Savollar",
             "Noto'g'ri javob berilgan savollar",
-            "Savol va javoblar", // 50
-            'Tanlanmagan javob',
+            "Savol va javoblar", 
+            'Tanlanmagan javob', // 50
             'Siz tanlagan javob',
             "To'g'ri javob",
             "Noto'g'ri javob",
@@ -317,8 +317,8 @@ const lang = {
             "Administrator imtihoningizni to'xtatdi",
             "Administrator bu imtihonni o'chirib tashladi",
             "Serverga ulanish uzildi. Administratorga murojaat qiling",
-            "Yuborish",
-            "Administrator sizni imtihon topshiruvchilar ro'yxatidan olib tashladi"
+            "Yuborish", 
+            "Administrator sizni imtihon topshiruvchilar ro'yxatidan olib tashladi"// 60
         ]
     }
 }

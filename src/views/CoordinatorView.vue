@@ -119,19 +119,23 @@ export default {
 
                     if(data.data.userExams.length){
                         const userExams = []
+                        const examsList = []
                         data.data.userExams.forEach(ue =>{
                             if(ue!==null){
-                                userExams.push(ue)
+                                examsList.push(ue)
+
+                                if(ue.examDateParams.start.byCommand && ue.examDateParams.end.byCommand){
+                                    if(ue.hasBegan) userExams.push(ue)
+                                } else userExams.push(ue)
                             }
                         })
 
                         if(userExams.length){
-                            this.setExams(userExams)
-                            console.log(this.getExams);
+                            this.setExams(examsList)
 
                             // авто старт тест если он 1
                             if(userExams.length == 1) {
-                                this.autoStartTest = this.getExams[0].id
+                                this.autoStartTest = userExams[0].id
                             }
                         } else {
                             this.logout()

@@ -36,7 +36,7 @@ export default {
         },
         getCurrentModuleExam(state){
             return state.currentModuleExam
-        },
+        }
     },
     mutations: {
         setExams(state, value){
