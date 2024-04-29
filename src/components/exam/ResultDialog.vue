@@ -47,7 +47,7 @@
           <div class="w-100 h-auto d-flex flex-column align-center" style="gap: 30px">
             
             <table style="width: 80%">
-              <tr>
+              <tr v-if="getCurrentModuleExam.params.displayedResultParams.indexOf('grade')==-1">
                 <td>
                   <div class="d-flex align-center">
                     <v-icon size="17" color="var(--main-color)">mdi-radiobox-marked</v-icon>
@@ -333,7 +333,8 @@ export default {
         examResults: Object || undefined,
         answeredQuestions: Array,
         timer: Number,
-        answers: Array
+        answers: Array,
+        startResultDialogTimer: Boolean
     },
     computed: mapGetters(['getUserData', 'getUsersList', 'getDepartments', 'getCurrentExam', 'currentLang', 'getCurrentModuleExam', 'getExamLanguage']),
     data(){
@@ -345,20 +346,24 @@ export default {
         }
     },
     watch:{
+        startResultDialogTimer(){
+          if(this.getCurrentModuleExam.params.resultDisplayTime!=null){            
+            this.resultTimerInterval = setInterval(()=>{
+              if(this.resultTimer!=0) this.resultTimer-=1
+              else{
+                clearInterval(this.resultTimerInterval)
+                this.exitExam(true)
+              }
+            }, 1000)
+          }
+        },
+
         showResultDialog(){
           if(this.showResultDialog){
             this.dialog = true
-
+            
             if(this.getCurrentModuleExam.params.resultDisplayTime!=null){
               this.resultTimer = this.getCurrentModuleExam.params.resultDisplayTime
-              
-              this.resultTimerInterval = setInterval(()=>{
-                if(this.resultTimer!=0) this.resultTimer-=1
-                else{
-                  clearInterval(this.resultTimerInterval)
-                  this.exitExam(true)
-                }
-              }, 1000)
             }
           }
         },
@@ -370,10 +375,6 @@ export default {
             this.dialog = false
           }
         },
-
-        answers(){
-          console.log(this.answers);
-        }
     },
     methods: {
       // getUserInfo(){

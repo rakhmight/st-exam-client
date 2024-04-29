@@ -5,13 +5,18 @@ onmessage = async function(event) {
 
     if(workerData.type == 'addSaving'){
         await doDatabaseStuff(workerData.type, workerData.ctx)
+    } else if(workerData.type == 'clearDB'){
+      await doDatabaseStuff(workerData.type)
     } else if(workerData.type == 'getSaving'){
         //const saving = await doDatabaseStuff(workerData.type, workerData.ctx)
         //postMessage(saving)
     } else if(workerData.type == 'deleteSaving'){
+      console.log('Deleting handler');
         await doDatabaseStuff(workerData.type, workerData.ctx)
     } else if(workerData.type == 'putSaving'){
         await doDatabaseStuff(workerData.type, workerData.ctx)
+    } else if(workerData.type == 'addError'){
+      await doDatabaseStuff(workerData.type, workerData.ctx)
     } else if(workerData.type == 'checkingSavings'){
       const savings = await doDatabaseStuff(workerData.type)
       postMessage({ type: 'savingsCheckingcomplate', savings })
@@ -32,11 +37,25 @@ async function doDatabaseStuff(type, ctx) {
       const savesTransaction = db.transaction('saves', 'readwrite')
       const saves = savesTransaction.objectStore('saves')
 
+      const errorsTransaction = db.transaction('errors', 'readwrite')
+      const errors = errorsTransaction.objectStore('errors')
+
       try{
         if(type=='addSaving'){
           await saves.add(ctx.data)
           .then(()=>{
             console.log('[Local-DB] New saving was added');
+          })
+          .catch(error=>{
+            throw error
+          })
+        }else if(type=='clearDB'){
+          await saves.clear()
+        }else if(type=='deleteSaving'){
+          console.log('Deleting saving..');
+          await saves.delete(ctx.id)
+          .then(()=>{
+            console.log('[Local-DB] Saving was deleted');
           })
           .catch(error=>{
             throw error
@@ -49,18 +68,18 @@ async function doDatabaseStuff(type, ctx) {
           } catch (error) {
             throw error
           }
-        }else if(type=='deleteSaving'){
-          await saves.delete(ctx.id)
-          .then(()=>{
-            console.log('[Local-DB] Saving was deleted');
-          })
-          .catch(error=>{
-            throw error
-          })
         }else if(type=='putSaving'){
           await saves.put(ctx.data)
           .then(()=>{
             console.log('[Local-DB] Process saved');
+          })
+          .catch(error=>{
+            throw error
+          })
+        }else if(type=='addError'){
+          await errors.add(ctx)
+          .then(()=>{
+            console.log('[Local-DB] Error saved');
           })
           .catch(error=>{
             throw error

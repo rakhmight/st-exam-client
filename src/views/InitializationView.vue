@@ -99,9 +99,9 @@ export default {
             blockIntervals: false
         }
     },
-    computed: mapGetters(['getAdminServerIP', 'getExamServerIP', 'getAuthServerIP', 'getSocketCode', 'getDeviceID', 'getUserData', 'getUsersList', 'currentLang']),
+    computed: mapGetters(['getAdminServerIP', 'getExamServerIP', 'getAuthServerIP', 'getHelperServerIP', 'getSocketCode', 'getDeviceID', 'getUserData', 'getUsersList', 'currentLang']),
     methods:{
-        ...mapMutations(['setAdminServerIP', 'setExamServerIP', 'setAuthServerIP', 'setSocketCode', 'setDeviceID', 'setInitializationProcess', 'setAuthState', 'setUsersList', 'setDepartments', 'setSubjects']),
+        ...mapMutations(['setAdminServerIP', 'setExamServerIP', 'setAuthServerIP', 'setHelperServerIP', 'setSocketCode', 'setDeviceID', 'setInitializationProcess', 'setAuthState', 'setUsersList', 'setDepartments', 'setSubjects']),
 
         changeStep(step){
             this.blockIntervals = true
@@ -206,6 +206,42 @@ export default {
                         this.step = 'servers-hand-shake'
                     } else {
                         console.log('[ST-Auth] Ok.');
+                        this.handShakeWithHelperServer()
+                    }
+                }
+            })
+            .catch((error)=>{
+                console.error('Error when shaking hands with the auth server:', error)
+                this.problems.value = true
+                this.problems.type = 'servers'
+                this.problems.msg = this.currentLang.initView[7]
+
+                if(!this.authServerInterval && !this.blockIntervals){
+                    this.authServerInterval = setInterval(()=>{
+                        this.handShakeWithAuthServer()
+                    },5000)
+                }
+            })
+        },
+
+        async handShakeWithHelperServer(){
+            console.log('Hand shake with ST-Helper');
+            await makeReq(`${this.getHelperServerIP}/api/ping`, 'GET')
+            .then(async (data)=>{
+                if(data.statusCode == 200){
+                    if(this.helperServerInterval){
+                        clearInterval(this.helperServerInterval)
+                        this.helperServerInterval = undefined
+                        this.problems.value = false
+                    }
+
+                    console.log(data)
+                    if(data.data.server!='st-helper-server'){
+                        this.setHelperServerIP(undefined)
+                        localStorage.removeItem('st-helper-server')
+                        this.step = 'servers-hand-shake'
+                    } else {
+                        console.log('[ST-Helper] Ok.')
 
                         setTimeout(()=>{
                             this.initStep = 'checkSocket'
@@ -235,14 +271,14 @@ export default {
                 }
             })
             .catch((error)=>{
-                console.error('Error when shaking hands with the auth server:', error)
+                console.error('Error when shaking hands with the helper server:', error)
                 this.problems.value = true
                 this.problems.type = 'servers'
-                this.problems.msg = this.currentLang.initView[7]
+                this.problems.msg = this.currentLang.initView[9]
 
                 if(!this.authServerInterval && !this.blockIntervals){
                     this.authServerInterval = setInterval(()=>{
-                        this.handShakeWithAuthServer()
+                        this.handShakeWithHelperServer()
                     },5000)
                 }
             })
@@ -331,7 +367,7 @@ export default {
                 this.setDepartments(res.data.departments)
             })
             
-            await makeReq(`${this.getAdminServerIP}/api/exams/get-users-params`, 'POST',{
+            await makeReq(`${this.getHelperServerIP}/api/exams/get-users-params`, 'POST',{
                 deviceData: {
                     code: this.getSocketCode,
                     id: this.getDeviceID
@@ -367,6 +403,7 @@ export default {
         const adminServerIp = localStorage.getItem('st-admin-server')
         const examServerIp = localStorage.getItem('st-exam-server')
         const authServerIp = localStorage.getItem('sa-auth-server')
+        const helperServerIp = localStorage.getItem('st-helper-server')
         const socketCode= localStorage.getItem('socket-code')
         const deviceID = localStorage.getItem('device-id')
 
@@ -380,6 +417,9 @@ export default {
         if(authServerIp){
             this.setAuthServerIP(authServerIp)
         }
+        if(helperServerIp){
+            this.setHelperServerIP(helperServerIp)
+        }
         if(socketCode){
             this.setSocketCode(socketCode)
         }
@@ -387,7 +427,7 @@ export default {
             this.setDeviceID(deviceID)
         }
 
-        if(!adminServerIp || !examServerIp || !authServerIp){
+        if(!adminServerIp || !examServerIp || !authServerIp || !helperServerIp){
             this.step = 'servers-hand-shake'
             clearInterval(this.dotesInterval)
             this.dotesInterval = undefined

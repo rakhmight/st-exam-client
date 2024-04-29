@@ -4,6 +4,7 @@ export default {
         adminServerIP: undefined,
         examServerIP: undefined,
         authServerIP: undefined,
+        helperServerIP: undefined,
         socketCode: undefined,
         deviceID: undefined,
         initializationProcess: false,
@@ -20,6 +21,9 @@ export default {
         },
         getAdminServerIP(state){
             return state.adminServerIP
+        },
+        getHelperServerIP(state){
+            return state.helperServerIP
         },
         getExamServerIP(state){
             return state.examServerIP
@@ -57,6 +61,9 @@ export default {
         },
         setAdminServerIP(state, value){
             state.adminServerIP = value
+        },
+        setHelperServerIP(state, value){
+            state.helperServerIP = value
         },
         setExamServerIP(state, value){
             state.examServerIP = value

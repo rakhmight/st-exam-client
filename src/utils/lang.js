@@ -45,7 +45,8 @@ const lang = {
             'Магистратура',
 
             'группа', // 30
-            'курс'
+            'курс',
+            'Обратитесь к администратору'
         ],
         coordinatorView: [
             'У вас нет активных экзаменов',
@@ -93,7 +94,8 @@ const lang = {
             'Не удаётся подключиться к управляющему серверу. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов',
             'Не удаётся подключиться к раздающему серверу. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов',
             'Не удаётся подключиться к серверу аутентификации. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов',
-            'Не удаётся подключиться к управляющему серверу для проверки клиента. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов'
+            'Не удаётся подключиться к управляющему серверу для проверки клиента. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов',
+            'Не удаётся подключиться к серверу поддержки. Как только подключение будет восстановлено, программа запуститься. Так же вы можете сменить IP-адреса серверов'
         ],
         examView: [
             'экзамен остановлен администратором',
@@ -206,7 +208,8 @@ const lang = {
             'Magistratura',
 
             'guruh', // 30
-            'kurs'
+            'kurs',
+            "Administratorga murojaat qiling"
         ],
         coordinatorView: [
             "Sizda faol imtihonlar yo'q",
@@ -254,7 +257,8 @@ const lang = {
             "Boshqaruv serveriga ulanib bo'lmadi. Ulanish tiklanishi bilan dastur ishga tushadi. Shuningdek, siz serverlarning IP manzillarini o'zgartirishingiz mumkin",
             "Distribyutor serveriga ulanib bo'lmadi. Ulanish tiklanishi bilan dastur ishga tushadi. Shuningdek, siz serverlarning IP manzillarini o'zgartirishingiz mumkin",
             "Autentifikatsiya serveriga ulanib bo'lmadi. Ulanish tiklanishi bilan dastur ishga tushadi. Shuningdek, siz serverlarning IP manzillarini o'zgartirishingiz mumkin",
-            "Mijozni tekshirish uchun boshqaruv serveriga ulanib bo'lmadi. Ulanish tiklanishi bilan dastur ishga tushadi. Shuningdek, siz serverlarning IP manzillarini o'zgartirishingiz mumkin"
+            "Mijozni tekshirish uchun boshqaruv serveriga ulanib bo'lmadi. Ulanish tiklanishi bilan dastur ishga tushadi. Shuningdek, siz serverlarning IP manzillarini o'zgartirishingiz mumkin",
+            "Yordamchi serveriga ulanib bo'lmadi. Ulanish tiklanishi bilan dastur ishga tushadi. Shuningdek, siz serverlarning IP manzillarini o'zgartirishingiz mumkin",
         ],
         examView: [
             "imtihon administrator tomonidan to'xtatildi",

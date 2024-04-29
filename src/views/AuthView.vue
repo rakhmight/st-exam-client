@@ -1,7 +1,7 @@
 <template>
     <div class="auth">
 
-        <div class="auth__header">
+        <div class="auth__header" v-if="!isChristmas">
             <div class="header__title">
                 <span class="text-h6 text-end" style="color: var(--main-color)">SMART TESTING EXAM CLIENT</span>
                 <div><v-img src="@/assets/media/auth_icon.png" width="70px"></v-img></div>
@@ -12,16 +12,72 @@
             <div class="header__bg"><div class="bg-chapter2"></div></div>
         </div>
 
+        <div class="christmas-theme" v-if="isChristmas">
+            <div class="snow"></div>
+
+            
+            <v-img class="ch-border ch-border-left" src="@/assets/media/christmas-theme/header-border.png"></v-img>
+            <v-img class="ch-border ch-border-right" src="@/assets/media/christmas-theme/header-border.png"></v-img>
+
+            <ul class="lightrope">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+
         <div class="auth__main d-flex flex-column">
-            <div class="form d-flex flex-column" style="gap:20px">
-                <div class="d-flex align-center justify-center" style="gap:10px;">
-                    <div><v-img src="@/assets/media/logo.png" width="70px" height="70px"></v-img></div>
+            <div class="form d-flex flex-column" style="gap:20px" :class="isChristmas ? 'border-christmas' : 'border-classic'">
+                <div class="d-flex align-center justify-center mt-3" style="gap:10px;">
+                    <div>
+                        <v-img style="position: absolute; top: 12px; z-index: 9; left:146px" src="@/assets/media/christmas-theme/santa-hat.svg" width="70px" height="70px" v-if="isChristmas"></v-img>
+                        <v-img src="@/assets/media/logo.png" width="70px" height="70px"></v-img>
+                    </div>
                     <span class="text-h6">{{ currentLang.authView[0] }}</span>
                 </div>
 
                 <div style="flex: 1 1 auto; width: 100%" class="d-flex flex-column align-center justify-center">
                     
-                    <div v-if="!userRole" class="d-flex flex-column w-100" style="gap:15px">
+                    <div v-if="!userRole && !userName && !password" class="d-flex flex-column w-100" style="gap:15px">
                         <div class="d-flex justify-center">
                             <span><b>{{ currentLang.authView[1] }}</b></span>
                         </div>
@@ -39,7 +95,7 @@
                     <div
                     class="d-flex flex-column w-100"
                     style="gap:15px"
-                    v-if="userRole && userRole=='student' && !formOfStudy || userRole && userRole=='enrollee' && !formOfStudy"
+                    v-if="userRole && userRole=='student' && !formOfStudy && !userName && !password || userRole && userRole=='enrollee' && !formOfStudy && !userName && !password"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-notebook</v-icon>
@@ -59,7 +115,7 @@
                     <div
                     class="d-flex flex-column w-100"
                     style="gap:15px"
-                    v-if="userRole && userRole=='student' && formOfStudy && !userCourse"
+                    v-if="userRole && userRole=='student' && formOfStudy && !userCourse && !userName && !password"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-alpha-k-box-outline</v-icon>
@@ -79,7 +135,7 @@
                     <div
                     class="d-flex flex-column w-100"
                     style="gap:15px"
-                    v-if="userCourse && userRole=='student' && !userGroup || userRole=='enrollee' && !userGroup && formOfStudy"
+                    v-if="userCourse && userRole=='student' && !userGroup && !userName && !password || userRole=='enrollee' && !userGroup && formOfStudy && !userName && !password"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-account-group</v-icon>
@@ -99,7 +155,7 @@
                     <div
                     class="d-flex flex-column w-100"
                     style="gap:15px"
-                    v-if="userRole && userRole=='employee' && !userDepartment || userRole && userRole=='teacher' && !userDepartment"
+                    v-if="userRole && userRole=='employee' && !userDepartment && !userName && !password || userRole && userRole=='teacher' && !userDepartment && !userName && !password"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-account-group</v-icon>
@@ -120,7 +176,7 @@
                     <div
                     class="d-flex flex-column w-100"
                     style="gap:15px"
-                    v-if="userRole=='student' && userGroup && !userName || userRole=='enrollee' && userGroup && !userName || userRole=='teacher' && userDepartment && !userName || userRole=='employee' && userDepartment && !userName"
+                    v-if="userRole=='student' && userGroup && !userName && !password || userRole=='enrollee' && userGroup && !userName && !password || userRole=='teacher' && userDepartment && !userName && !password || userRole=='employee' && userDepartment && !userName && !password"
                     >
                         <div class="d-flex align-center mt-2">
                             <v-icon size="19" color="var(--main-color)">mdi-account</v-icon>
@@ -225,7 +281,7 @@
             </div>
                     
 
-            <div class="main__clouds-animation">
+            <div class="main__clouds-animation" v-if="!isChristmas">
                 <div class="cloud third-cloud">
                     <v-img src="@/assets/media/cloud.png"></v-img>
                 </div>
@@ -242,12 +298,13 @@
 
             <div class="main__back-bg">
                 <div style="width: 70%">
-                    <v-img  src="@/assets/media/main-bg-h2.png"></v-img>
+                    <v-img  src="@/assets/media/main-bg-h2.png" v-if="!isChristmas"></v-img>
+                    <v-img  src="@/assets/media/christmas-theme/main-snowed-bg.png" v-if="isChristmas"></v-img>
                 </div>
             </div>
         </div>
 
-        <div class="auth__footer">
+        <div class="auth__footer"  v-if="!isChristmas">
             <div>
                 <!-- Lang -->
             </div>
@@ -255,6 +312,17 @@
             <div>
                 <span>ST Exam client v.{{ version }}</span>
             </div>
+        </div>
+
+        
+        <div class="christmas-footer" v-if="isChristmas">
+            <div class="christmas-way" style="background-image: url('./media/christmas-theme/snow-ground.png');"></div>
+
+            <div style="position: absolute; bottom: 5px; right: 20px">
+                <span style="color: var(--main-color)">❄ Smart Testing Exam client v.{{ version }}</span>
+            </div>
+
+            <v-img src="@/assets/media/christmas-theme/snowman.png" style="width: 220px; position: absolute; bottom: 10px; right: 100px" />
         </div>
 
     </div>
@@ -265,6 +333,7 @@ import { socket } from '@/socket';
 import { mapGetters, mapMutations } from 'vuex';
 import makeReq from '@/utils/makeReq';
 import { getCourse } from '@/utils/getInfo';
+import Snowflakes from 'magic-snowflakes';
 
 export default {
     data(){
@@ -298,11 +367,42 @@ export default {
 
             currentYear: undefined,
             nextEducationYear: false,
-            version: undefined
+            version: undefined,
+
+            snowflakes: undefined,
+            isChristmas: false
         }
     },
-    computed: mapGetters(['getInitializationProcess', 'getAuthServerIP', 'getAuthState', 'getAdminServerIP', 'getUserData', 'getUsersList', 'getDepartments', 'getDeviceID', 'getSocketCode', 'currentLang']),
+    computed: mapGetters(['getInitializationProcess', 'getAuthServerIP', 'getAdminServerIP', 'getUserData', 'getUsersList', 'getDepartments', 'getDeviceID', 'getSocketCode', 'currentLang']),
     async mounted(){
+        if(new Date(Date.now()).getMonth() == 11 || new Date(Date.now()).getMonth() == 0){
+            this.isChristmas = true
+        }
+
+        if(this.isChristmas){
+            setTimeout(()=>{
+                const christmasThemeBlock = document.querySelector('.christmas-theme')
+
+                if(christmasThemeBlock){
+                    this.snowflakes = new Snowflakes({
+                        color: '#fff', // Default: "#5ECDEF"
+                        container: document.querySelector('.christmas-theme'), // Default: document.body
+                        count: 80, // 100 snowflakes. Default: 50
+                        minOpacity: 0.8, // From 0 to 1. Default: 0.6
+                        maxOpacity: 1, // From 0 to 1. Default: 1
+                        minSize: 10, // Default: 10
+                        maxSize: 25, // Default: 25
+                        rotation: true, // Default: true
+                        speed: 1, // The property affects the speed of falling. Default: 1
+                        wind: false, // Without wind. Default: true
+                        zIndex: 100, // Default: 9999,
+                        autoResize: true // Default: true
+                    });
+                    this.snowflakes.start()
+                }
+            }, 2000)
+        }
+
         this.version = process.env.VUE_APP_VERSION
 
         if(this.getInitializationProcess){
@@ -322,6 +422,7 @@ export default {
         this.choiseLists()
     },
     unmounted(){
+        if(this.snowflakes) this.snowflakes.destroy()
         document.removeEventListener('keydown', this.handleEnterKey); // удаление обработчика
     },
     methods:{
@@ -416,7 +517,7 @@ export default {
                     const targetGroup = groupsList.find(group => group.value == user.roleProperties.group)
 
                     if(!targetGroup && getCourse(user.roleProperties.recieptDate) == this.userCourse && user.userRole == this.userRole) groupsList.push({
-                        title: (''+user.roleProperties.group).length == 1 ? `${getCourse(user.roleProperties.recieptDate)}0${user.roleProperties.group} ${this.currentLang.authView[30]}` : `${getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group} ${this.currentLang.authView[30]}`,
+                        title: (''+user.roleProperties.group).length == 1 ? `${ this.isChristmas ? '⛄' : '' } ${getCourse(user.roleProperties.recieptDate)}0${user.roleProperties.group} ${this.currentLang.authView[30]}` : `${ this.isChristmas ? '⛄' : '' } ${getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group} ${this.currentLang.authView[30]}`,
                         value: user.roleProperties.group
                     })
                 }
@@ -492,7 +593,7 @@ export default {
                     if(user.userRole == 'teacher' || user.userRole == 'employee'){
                         if(user.roleProperties.department == this.userDepartment && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
+                                title: `${ this.isChristmas ? '🍪' : '' } ${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
                                 value: user.id
                             })
                         }
@@ -503,7 +604,7 @@ export default {
                     if(user.userRole == 'student'){
                         if(this.getCourse(user.roleProperties.recieptDate) == this.userCourse && user.roleProperties.group == this.userGroup && user.roleProperties.educationForm == this.formOfStudy && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
+                                title: `${ this.isChristmas ? '🍪' : '' } ${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
                                 value: user.id
                             })
                         }
@@ -514,7 +615,7 @@ export default {
                     if(user.userRole == 'enrollee'){
                         if(user.roleProperties.group == this.userGroup && user.roleProperties.educationForm == this.formOfStudy && !this.usersList.find(u => u.value == user.id)){
                             this.usersList.push({
-                                title: `${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
+                                title: `${ this.isChristmas ? '🍪' : '' } ${user.bio.firstName ? user.bio.firstName : ''} ${user.bio.lastName ? user.bio.lastName : ''} ${user.bio.patronymic ? user.bio.patronymic : ''}`,
                                 value: user.id
                             })
                         }
@@ -702,15 +803,17 @@ export default {
     width: 700px;
     padding: 30px;
     background-color: #ffffff9a;
-    border-radius: 10px;
     position: relative;
     z-index: 3;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 4px 5px, rgba(0, 0, 0, 0.22) 0px 8px 10px;
     transition: box-shadow 0.5s ease, background-color 0.5s ease;
     min-height: 400px;
 }
+.border-classic{
+    border-radius: 10px;
+}
 .form:hover{
-    background-color: #fff;
+    background-color: #f5f5f5dc;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 8px 10px, rgba(0, 0, 0, 0.22) 0px 16px 20px;
 }
 
@@ -720,7 +823,8 @@ export default {
     display: flex;
     justify-content: space-between;
     color: #9e9e9e;
-    font-size: 0.9em
+    font-size: 0.9em;
+    position: relative
 }
 
 .roles{
@@ -730,6 +834,171 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   justify-content: space-between;
   justify-items: center;
+}
+
+
+
+.christmas-theme{
+    position: absolute;
+    width: 100%;
+    top: 0;
+    height: 100vh;
+    z-index: 2;
+}
+
+.christmas-footer{
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+}
+
+.christmas-way{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 90px;
+    background-size: contain;
+    background-repeat: repeat-x;
+}
+
+.snow{
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    height: 75px;
+    background-image: url('../assets/media/christmas-theme/snow.png');
+    background-size: contain;
+    background-repeat: repeat-x;
+    z-index: 100;
+}
+
+.ch-border{
+    top: 0;
+    position: absolute;
+    width: 500px;
+    height:auto;
+    z-index: 200;
+    object-position: left top;
+}
+
+.ch-border-left{
+    left: 0;
+}
+.ch-border-right{
+    right: 0;
+    transform: scale(-1, 1)
+}
+
+.border-christmas {
+  border: 1px solid var(--main-color);
+  border-image: repeating-linear-gradient(
+      45deg,
+      var(--main-color),
+      var(--main-color) 20px,
+      white 20px,
+      white 40px
+    )
+    20;
+}
+
+.lightrope {
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    position: fixed;
+    top:27px;
+    left: 0;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 90px;
+}
+ .lightrope li {
+    position: relative;
+    animation-fill-mode: both;
+    animation-iteration-count: infinite;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: block;
+    width: 12px;
+    height: 28px;
+    border-radius: 50%;
+    margin: 20px;
+    display: inline-block;
+    background: rgba(0, 247, 165, 1);
+    box-shadow: 0px 4.6666666667px 24px 3px rgba(0, 247, 165, 1);
+    animation-name: flash-1;
+    animation-duration: 2s;
+}
+ .lightrope li:nth-child(2n+1) {
+    background: rgba(0, 255, 255, 1);
+    box-shadow: 0px 4.6666666667px 24px 3px rgba(0, 255, 255, 0.5);
+    animation-name: flash-2;
+    animation-duration: 0.4s;
+}
+ .lightrope li:nth-child(4n+2) {
+    background: rgba(247, 0, 148, 1);
+    box-shadow: 0px 4.6666666667px 24px 3px rgba(247, 0, 148, 1);
+    animation-name: flash-3;
+    animation-duration: 1.1s;
+}
+ .lightrope li:nth-child(odd) {
+    animation-duration: 1.8s;
+}
+ .lightrope li:nth-child(3n+1) {
+    animation-duration: 1.4s;
+}
+ .lightrope li:before {
+    content: "";
+    position: absolute;
+    background: #222;
+    width: 10px;
+    height: 9.3333333333px;
+    border-radius: 3px;
+    top: -4.6666666667px;
+    left: 1px;
+}
+ .lightrope li:last-child:after {
+    content: none;
+}
+ .lightrope li:first-child {
+    margin-left: -40px;
+}
+ @keyframes flash-1 {
+	0%, 100% {
+	background: rgba(0, 247, 165, 1);
+	box-shadow: 0px 4.6666666667px 24px 3px rgba(0, 247, 165, 1);
+	}
+	50% {
+	background: rgba(0, 247, 165, 0.4);
+	box-shadow: 0px 4.6666666667px 24px 3px rgba(0, 247, 165, 0.2);
+	}
+}
+ @keyframes flash-2 {
+	0%, 100% {
+	background: rgba(0, 255, 255, 1);
+	box-shadow: 0px 4.6666666667px 24px 3px rgba(0, 255, 255, 1);
+	}
+	50% {
+	background: rgba(0, 255, 255, 0.4);
+	box-shadow: 0px 4.6666666667px 24px 3px rgba(0, 255, 255, 0.2);
+	}
+}
+ @keyframes flash-3 {
+	0%, 100% {
+	background: rgba(247, 0, 148, 1);
+	box-shadow: 0px 4.6666666667px 24px 3px rgba(247, 0, 148, 1);
+	}
+	50% {
+	background: rgba(247, 0, 148, 0.4);
+	box-shadow: 0px 4.6666666667px 24px 3px rgba(247, 0, 148, 0.2);
+	}
 }
 
 </style>

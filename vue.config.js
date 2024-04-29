@@ -5,19 +5,6 @@ module.exports = defineConfig({
   transpileDependencies: true,
 
   configureWebpack:{
-    // resolve: {
-    //   fallback: {
-    //     "path": require.resolve('path-browserify'),
-    //   },
-    // },
-    // node: {
-    //   // provides the global variable named "global"
-    //   //global: true,
-      
-    //   // provide __filename and __dirname global variables
-    //   //__filename: true,
-    //   //__dirname: true,
-    // },
     plugins:[
       new NodePolyfillPlugin()
     ]
@@ -33,6 +20,12 @@ module.exports = defineConfig({
 		},
     
     electronBuilder:{
+      "publish": [
+        {
+          "provider": "generic",
+          "url": "http://172.16.18.223:5700/st-exam-client/"
+        }
+      ],
       builderOptions:{
         "productName": "ST Exam client",
         "appId": "st-exam-client",

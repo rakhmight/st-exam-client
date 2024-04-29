@@ -340,12 +340,90 @@
                     </div>
                 </v-card>
                 </v-dialog>
+
+                
+                <v-dialog
+                v-model="passwordDialog"
+                width="50%"
+                >
+                <v-card>
+                    <div style="padding: 20px">
+                        
+                        <div
+                        class="d-flex flex-column w-100"
+                        style="gap:15px;"
+                        >
+                            <div class="d-flex align-center mt-2">
+                                <v-icon size="19" color="var(--main-color)">mdi-key-variant</v-icon>
+                                <span class="ml-2" style="color: #555">{{ currentLang.authView[16] }}</span>
+                            </div>
+                            <v-text-field
+                            variant="outlined"
+                            density="compact"
+                            :placeholder="`  ${currentLang.authView[17]}`"
+                            color="var(--main-color)"
+                            v-model="password"
+                            :error="passwordError.value"
+                            :error-messages="passwordError.msg"
+                            autofocus
+                            ></v-text-field>
+                        </div>
+
+                        
+                        <div class="d-flex justify-center">
+                            <v-btn
+                            density="compact"
+                            :color="blockBtn ? '#eee' : 'var(--main-color)'"
+                            width="200px"
+                            @click="auth()"
+                            :disabled="blockBtn"
+                            >
+                            <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">{{ currentLang.authView[19] }}</span>
+                            <v-progress-circular
+                                :width="1"
+                                size="15"
+                                color="var(--main-color)"
+                                indeterminate
+                                v-else
+                            ></v-progress-circular>
+                            </v-btn>
+                        </div>
+                        
+                        <div
+                        class="alerts-box mt-5"
+                        style="width: 700px;"
+                        v-if="error.value || success"
+                        >
+                            <v-alert
+                            density="compact"
+                            color="var(--red-color)"
+                            v-if="error.value"
+                            >
+                                <div class="d-flex align-center">
+                                    <v-icon size="19" color="#fff">mdi-alert-circle-outline</v-icon>
+                                    <span style="color: #fff" class="ml-1">{{ error.msg }}</span>
+                                </div>
+                            </v-alert>
+                            
+                            <v-alert
+                            density="compact"
+                            color="var(--main-color)"
+                            v-if="success"
+                            class="d-flex flex-row align-center"
+                            >
+                                <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
+                                <span style="color:#fff">{{ currentLang.authView[20] }}</span>
+                            </v-alert>
+                        </div>
+                    </div>
+                </v-card>
+                </v-dialog>
             </div>
 
             <div>
                 <v-tooltip location="bottom">
                     <template v-slot:activator="{ props }">
-                        <v-icon size="22" color="var(--main-color)" v-bind="props" style="cursor: pointer" @click="beginExam()">mdi-play-circle-outline</v-icon>
+                        <v-icon size="22" color="var(--main-color)" v-bind="props" style="cursor: pointer" @click="tryToBeginExam()">mdi-play-circle-outline</v-icon>
                     </template>
                     <span>{{ currentLang.coordinatorView[30] }}</span>
                 </v-tooltip>
@@ -369,18 +447,94 @@ export default {
     },
     data(){
         return {
-            dialog: false
+            dialog: false,
+            passwordDialog: false,
+            passwordError: {
+                value: false,
+                msg: undefined
+            },
+            password: undefined,
+            blockBtn: true,
+            loader: false,
+            error:{
+                value: false,
+                msg: undefined
+            },
+            success: false
         }
     },
-    computed: mapGetters(['getSubjects', 'getAdminServerIP', 'getUserData', 'getExamServerIP', 'getCurrentTickets', 'getExams', 'currentLang']),
+    computed: mapGetters(['getSubjects', 'getAdminServerIP', 'getUserData', 'getExamServerIP', 'getCurrentTickets', 'getExams', 'currentLang', 'getAuthState', 'getDeviceID', 'getSocketCode', 'getAuthServerIP']),
     watch: {
         autoStartTest(){
             this.checkAutoTest()
-        }
+        },
+        
+        password(){
+            if(this.password){
+                this.passwordError.value = false
+                this.passwordError.msg = undefined
+                this.error.value = false
+                this.blockBtn = false
+            } else {
+                this.blockBtn = true
+            }
+        },
     },
     methods:{
         mergeProps,
-        ...mapMutations(['setCurrentTickets', 'setCurrentExamID', 'setExamToken']),
+        ...mapMutations(['setCurrentTickets', 'setCurrentExamID', 'setExamToken', 'setAuthState', 'setUserData']),
+
+        tryToBeginExam(){
+            if(this.getAuthState) this.beginExam()
+            else this.passwordDialog = true
+        },
+
+        async auth(){
+            if(this.password){
+                this.loader = true
+                this.blockBtn = true
+                makeReq(`${this.getAuthServerIP}/api/user/auth`, 'POST', {
+                    auth:{
+                        id: this.getUserData.authData.id,
+                        password: this.password,
+                        requesting: 'device'
+                    },
+                    deviceData:{
+                        id: this.getDeviceID,
+                        code: this.getSocketCode
+                    }
+                })
+                .then(async (data)=>{
+                    console.log(data);
+                    if(data.statusCode == 404){
+                        this.passwordError.value = true
+                        this.passwordError.msg = this.currentLang.authView[21]
+                        this.loader = false
+                    } else if(data.statusCode == 500){
+                        this.error.value = true
+                        this.error.msg = this.currentLang.authView[22]
+                        this.loader = false
+                    } else if(data.statusCode == 200) {
+                        this.loader = false
+                        this.success = true
+                        this.setAuthState(true)
+                        const userData = { userData: data.data.userData, authData: data.data.authData }
+                        this.setUserData(userData)
+
+                        setTimeout(()=>{
+                            this.success = false
+                            this.beginExam()
+                        },3000)
+                    }
+                })
+                .catch(error=>{
+                    console.log(error);
+                    this.error.value = true
+                    this.error.msg = 'Auth-сервер не отвечает'
+                    this.loader = false
+                })
+            }
+        },
 
         checkAutoTest(){
             if(this.autoStartTest == this.exam.id){
@@ -498,11 +652,21 @@ export default {
                     return
                 })
             }
-        }
+        },
+
+        handleEnterKey(){
+            if(event.code=='Enter' || event.code == 'NumpadEnter'){
+                if(this.password) this.auth()
+            }
+        },
     },
     mounted(){
         //console.log(this.exam);
         this.checkAutoTest()
+        document.addEventListener('keydown', this.handleEnterKey);
+    },
+    unmounted(){
+        document.removeEventListener('keydown', this.handleEnterKey)
     }
 }
 </script>

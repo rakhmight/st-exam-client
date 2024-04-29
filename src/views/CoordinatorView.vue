@@ -11,7 +11,7 @@
 
         <div class="exams" v-if="step=='choise-exam'">
             <exam-card
-            v-for="(exam) in getExams"
+            v-for="exam in userExams"
             :key="exam.id"
             :exam="exam"
             :diniedExam="diniedExam"
@@ -29,6 +29,22 @@
                 <v-icon>mdi-cancel</v-icon>
                 <span class="ml-1">{{ examDinied.msg }}</span>
             </div>
+        </div>
+
+        
+        <div style="position: absolute; bottom: 0; right: 0; z-index: 777; padding: 2px 20px">
+            <v-btn
+            icon
+            v-bind="props"
+            color="var(--red-color)"
+            density="comfortable"
+            @click="exitToAuth()"
+            >
+                <v-icon
+                size="18"
+                color="white"
+                >mdi-exit-to-app</v-icon>
+            </v-btn>
         </div>
     </div>
 </template>
@@ -50,12 +66,69 @@ export default {
             diniedExamTimeout: undefined,
             examsEmpty: false,
 
-            autoStartTest: undefined
+            autoStartTest: undefined,
+            userExams: []
         }
     },
-    computed: mapGetters(['getUserData', 'getInitializationProcess', 'getAdminServerIP', 'getExams', 'getSubjects', 'getCurrentTickets', 'currentLang']),
+    computed: mapGetters(['getUserData', 'getInitializationProcess', 'getAdminServerIP', 'getExams', 'getSubjects', 'getCurrentTickets', 'currentLang', 'getExamsStatusUpdating', 'getExamsListNeedToUpdating', 'getAuthState', 'getHelperServerIP']),
+    watch: {
+        getExamsStatusUpdating(){
+            this.sortExamsList()
+        },
+
+        async getExamsListNeedToUpdating(){
+            const examsData = await this.getExamsList()
+
+            if(examsData){
+                if(examsData.data.userExams.length){
+                    const examsList = []
+                    examsData.data.userExams.forEach(ue =>{
+                        if(ue!==null){
+                            examsList.push(ue)
+                        }
+                    })
+
+                    if(examsList.length){
+                        this.setExams(examsList)
+                        this.sortExamsList()
+                    } else {
+                        this.logout()
+                        }
+                } else {
+                    this.logout()
+                }
+            }
+        }
+    },
     methods:{
-        ...mapMutations(['setUserData', 'setExams', 'setAuthState']),
+        ...mapMutations(['setUserData', 'setExams', 'setAuthState', 'setExamToken']),
+
+        exitToAuth(){
+            this.setExams([])
+            this.setUserData(undefined)
+            this.setAuthState(false)
+            this.setExamToken(undefined)
+            this.$router.push('/auth')
+        },
+
+        sortExamsList(){
+            this.userExams = []
+
+            this.getExams.map( exam => {
+                if(exam.examDateParams.start.byCommand && exam.examDateParams.end.byCommand){
+                    if(exam.hasBegun) this.userExams.push(exam)
+                }
+            })
+            
+            if(this.userExams.length == 1) {
+                if(this.getAuthState) this.autoStartTest = this.userExams[0].id
+            } else if(this.userExams.length == 0){
+                this.logout()
+            }
+            if(this.userExams.length == 0){
+                this.logout()
+            }
+        },
 
         diniedExam(msg){
             clearTimeout(this.diniedExamTimeout)
@@ -88,6 +161,21 @@ export default {
                 // Экзаменов вообще нет
                 this.$router.push('/auth')
             },3000)
+        },
+
+        async getExamsList(){
+            try {
+                const examsData = await makeReq(`${this.getHelperServerIP}/api/exams/check`, 'POST', {
+                    auth: {
+                        id: this.getUserData.authData.id,
+                        token: this.getUserData.authData.token.key
+                    }
+                })
+
+                return examsData
+            } catch (error) {
+                console.error(error)
+            }
         }
     },
     async mounted(){
@@ -105,38 +193,24 @@ export default {
             }
             console.log(this.getUserData);
             
-            // Проверка на есть ли у пользователя активные экзамены
-            await makeReq(`${this.getAdminServerIP}/api/exams/check`, 'POST', {
-                auth: {
-                    id: this.getUserData.authData.id,
-                    token: this.getUserData.authData.token.key
-                }
-            })
-            .then((data)=>{
-                console.log(data);
-                if(data.statusCode==200){
+            const examsData = await this.getExamsList()
+
+            if(examsData){
+                console.log(examsData);
+                if(examsData.statusCode==200){
                     this.step = 'choise-exam'
 
-                    if(data.data.userExams.length){
-                        const userExams = []
+                    if(examsData.data.userExams.length){
                         const examsList = []
-                        data.data.userExams.forEach(ue =>{
+                        examsData.data.userExams.forEach(ue =>{
                             if(ue!==null){
                                 examsList.push(ue)
-
-                                if(ue.examDateParams.start.byCommand && ue.examDateParams.end.byCommand){
-                                    if(ue.hasBegan) userExams.push(ue)
-                                } else userExams.push(ue)
                             }
                         })
 
-                        if(userExams.length){
+                        if(examsList.length){
                             this.setExams(examsList)
-
-                            // авто старт тест если он 1
-                            if(userExams.length == 1) {
-                                this.autoStartTest = userExams[0].id
-                            }
+                            this.sortExamsList()
                         } else {
                             this.logout()
                         }
@@ -144,7 +218,7 @@ export default {
                         this.logout()
                     }
 
-                } else if(data.statusCode==204){
+                } else if(examsData.statusCode==204){
                     this.examsEmpty = true
 
                     setTimeout(()=>{
@@ -155,11 +229,7 @@ export default {
                         this.$router.push('/auth')
                     },3000)
                 }
-            })
-            .catch((error)=>{
-                // Здесь экран ошибки
-                console.error(error)
-            })
+            }
 
         }
     },

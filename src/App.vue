@@ -44,13 +44,11 @@
           width="auto"
         >
           <div class="error-card">
-            <div class="error-card__header d-flex flex-row align-center" style="gap:15px">
-              <div style="width: 50px;">
+            <div class="error-card__header d-flex flex-column align-center" style="gap:15px">
+              <div style="width: 60px;">
                   <v-img src="@/assets/media/global-error.png"></v-img>
               </div>
-              <div class="mt-1">
-                <span style="font-size: 1.4em; font-weight: 500; color: var(--special-color)">Error detected!</span>
-              </div>
+              <span style="font-size: 1.4em; font-weight: 500; color: var(--red-color); text-transform: uppercase;">Error detected!</span>
             </div>
 
             <v-divider class="mt-3 mb-7"></v-divider>
@@ -58,13 +56,17 @@
             <div class="error-card__content">
               
               <div class="d-flex align-center flex-row" style="gap: 5px">                
-                <v-icon size="22" color="var(--red-color)">mdi-alert</v-icon>
-                <p style="color: var(--red-color); font-weight: 600;">{{ getException.error }}</p>
+                <v-icon size="18" color="var(--red-color)">mdi-alert</v-icon>
+                <p style="color: var(--red-color);">{{ getException.error }}</p>
               </div>
 
               <div class="d-flex align-center flex-row" style="gap: 5px">                
                 <v-icon size="18" color="#777">mdi-information</v-icon>
                 <p>Info: {{ getException.info }}</p>
+              </div>
+
+              <div class="d-flex justify-center mt-10">
+                <p style="color: var(--red-color); text-transform: uppercase; font-weight: 600;">{{ currentLang.authView[32] }}</p>
               </div>
             </div>
 
@@ -78,7 +80,7 @@
                   class="d-flex align-center"
                   @click="reloadApp()"
                   >
-                    <v-icon size="17" color="#fff">mdi-exit-to-app</v-icon>
+                    <v-icon size="17" color="#fff">mdi-reload</v-icon>
                     <span style="color: #fff" class="ml-1">Reload</span>
                 </v-btn>
               </div>
@@ -95,6 +97,8 @@ import { mapMutations, mapGetters } from "vuex"
 import path from 'path-browserify'
 import makeReq from "./utils/makeReq";
 import { socket } from '@/socket';
+import log from "electron-log";
+log.info(`hello`);
 
 export default {
   name: "App",
@@ -109,7 +113,7 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(["setSavesCounter", 'changeLang', 'setUsersList']),
+    ...mapMutations(["setSavesCounter", 'changeLang', 'setUsersList', 'updateExamsStatus']),
 
     reloadApp(){
       window.location.reload();
@@ -120,7 +124,7 @@ export default {
         this.activeLang = lang
       }
   },
-  computed: mapGetters(['getInitializationProcess', 'getAdminServerIP', 'getUsersList', 'getException']),
+  computed: mapGetters(['getInitializationProcess', 'getAdminServerIP', 'getUsersList', 'getException', 'currentLang']),
   // watch: {
   //   'getException.status'(){
   //     if(this.getException.status) {
@@ -146,9 +150,9 @@ export default {
     }
 
     
-    const adminServerIp = localStorage.getItem('st-admin-server')
+    const helperServerIP = localStorage.getItem('st-helper-server')
     // Checking for local saves
-    if(adminServerIp){
+    if(helperServerIP){
       if (window.Worker) {
         this.savingsCheckerWorker = new Worker(path.join(process.env.BASE_URL, 'workers', 'actionsSaveWorker.js'))
 
@@ -162,7 +166,7 @@ export default {
 
               console.log('Savings:', workerData.savings);
 
-              await makeReq(`${adminServerIp}/api/exams/acceptsavings`, 'POST', {
+              await makeReq(`${helperServerIP}/api/exams/acceptsavings`, 'POST', {
                 savings: workerData.savings
               })
               .then(data=>{
@@ -183,7 +187,7 @@ export default {
           }
         }
 
-        
+         
         this.savingsCheckerWorker.postMessage(JSON.parse(JSON.stringify(
           {
               type: 'checkingSavings'
@@ -193,20 +197,23 @@ export default {
     }
 
     const ctx = this
-    socket.on('usersParams', (usersParamsList)=>{
+    socket.on('usersParams', (data)=>{
       const usersParams = []
-        usersParamsList.map(up => {
+      if(data.usersParamsList && data.usersParamsList.length){
+        data.usersParamsList.map(up => {
             usersParams.push(...up.usersParams)
         })
 
         ctx.setUsersList(usersParams)
+        this.updateExamsStatus(data.exam)
         console.log(ctx.getUsersList)
+      }
     })
   },
   unmounted() {
-    const adminServerIp = localStorage.getItem('st-admin-server')
+    const helperServerIP = localStorage.getItem('st-admin-server')
     // удаление worker
-    if(adminServerIp){
+    if(helperServerIP){
       if(this.savingsCheckerWorker){
           this.savingsCheckerWorker.terminate()
       }

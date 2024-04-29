@@ -1,5 +1,5 @@
 <template>
-    <div class="footer">
+    <div class="footer" v-if="ticket && ticket.questions">
         <div class="footer-wrap">
             <div></div>
 
@@ -67,10 +67,12 @@ export default {
     methods:{
         setCurrentTheme(){
             const target = this.ticket.questions.find(question=>question.id==this.currentQuestion)
-            this.theme = target.theme
+            if(target){
+                this.theme = target.theme
 
-            if(target.difficulty){
-                this.difficulty = target.difficulty
+                if(target.difficulty){
+                    this.difficulty = target.difficulty
+                }
             }
         },
 

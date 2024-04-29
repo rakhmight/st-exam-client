@@ -24,6 +24,7 @@
             :exitExam="exitExam"
             :examResults="examResults"
             :timer="timer"
+            :startResultDialogTimer="startResultDialogTimer"
             />
 
             <div></div>
@@ -173,6 +174,7 @@ export default {
             step: 'prepare',
             blockActionBtns: false,
             showResultDialog: false,
+            startResultDialogTimer: false,
             currentAnswer: 0,
             windowsIncrease: 1,
             actionsSaveWorker: undefined,
@@ -186,7 +188,7 @@ export default {
             blockSend: false
         }
     },
-    computed: mapGetters(['getAuthState', 'getExamState', 'getCurrentTickets', 'getCurrentExam', 'getExamLanguage', 'getExamServerIP', 'getExamToken', 'getCurrentExamID', 'getUserData', 'getCurrentSaving', 'getSavesCounter', 'getAdminServerIP', 'getExams', 'getCurrentModuleExam', 'getCurrentExamsList', 'currentLang']),
+    computed: mapGetters(['getAuthState', 'getExamState', 'getCurrentTickets', 'getCurrentExam', 'getExamLanguage', 'getExamServerIP', 'getExamToken', 'getCurrentExamID', 'getUserData', 'getCurrentSaving', 'getSavesCounter', 'getAdminServerIP', 'getExams', 'getCurrentModuleExam', 'getCurrentExamsList', 'currentLang', 'getHelperServerIP']),
     components: {
         HeaderComponent,
         FooterComponent,
@@ -236,16 +238,19 @@ export default {
         // прослушивание клавиш
         document.addEventListener('keydown', this.handleKeyDown);
 
+
+        console.log(`client-pause-${this.getUserData.authData.id}-${this.getCurrentExamID}`);
+
         // прослушивание сокетов
-        socket.on(`client-pause-${this.getUserData.authData.id}`, ()=>{
+        socket.on(`client-pause-${this.getUserData.authData.id}-${this.getCurrentExamID}`, ()=>{
             this.actionHandler('paused')
         })
 
-        socket.on(`client-resume-${this.getUserData.authData.id}`, ()=>{
+        socket.on(`client-resume-${this.getUserData.authData.id}-${this.getCurrentExamID}`, ()=>{
             this.actionHandler('resumed')
         })
 
-        socket.on(`client-stop-${this.getUserData.authData.id}`, ()=>{
+        socket.on(`client-stop-${this.getUserData.authData.id}-${this.getCurrentExamID}`, ()=>{
             this.actionHandler('stop')
         })
 
@@ -253,17 +258,17 @@ export default {
             this.changeQuestion(data.examData)
         })
 
-        socket.on(`client-delete-exam-${this.getUserData.authData.id}`,() => {
+        socket.on(`client-delete-exam-${this.getUserData.authData.id}-${this.getCurrentExamID}`,() => {
             this.actionHandler('delete-exam')
         })
 
-        socket.on(`client-exclude-${this.getUserData.authData.id}`,() => {
+        socket.on(`client-exclude-${this.getUserData.authData.id}-${this.getCurrentExamID}`,() => {
             this.actionHandler('exclude-exam')
         })
 
     },
     methods:{
-        ...mapMutations(['setCurrentTickets', 'setCurrentExam', 'setCurrentExamID', 'setCurrentExamsList', 'setExamLanguage', 'setExamState', 'setCurrentSaving', 'updateSavesCounter', 'setCurrentModuleExam', 'updateCurrentExamsList', 'setUserData', 'setAuthState', 'setExamToken']),
+        ...mapMutations(['setCurrentTickets', 'setCurrentExam', 'setCurrentExamID', 'setCurrentExamsList', 'setExamLanguage', 'setExamState', 'setCurrentSaving', 'updateSavesCounter', 'setCurrentModuleExam', 'updateCurrentExamsList', 'setUserData', 'setAuthState', 'setExamToken', 'deleteExam']),
 
         changeQuestion(data){
             if(this.ticket.questions.find(question => question.id == data.questionID)!=-1){
@@ -368,6 +373,9 @@ export default {
                 }
             })
 
+            // console.log('answersPrepare', answersPrepare)
+            // console.log('this.ticket', this.ticket)
+
             if(this.savingAvaible){
                 this.savingAvaible.actions.forEach((action, i)=>{
                     if(action.actType=='answering' && i != 0){
@@ -375,7 +383,7 @@ export default {
                         const index = answersPrepare.indexOf(target)
 
                         if(action.ctx.answer!==null){
-
+                            // FIXME:
                             answersPrepare[index].answer = JSON.parse(JSON.stringify(action.ctx.answer))
                         }
                     }
@@ -486,7 +494,7 @@ export default {
 
         async trySendSaving(){
             this.resendLoader = true
-            await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
+            await makeReq(`${this.getHelperServerIP}/api/exams/saving-update`, 'POST', {
                 auth: {
                     id: this.getUserData.authData.id,
                     token: this.getUserData.authData.token.key,
@@ -571,7 +579,7 @@ export default {
                             this.userActions[this.userActions.length-1].ctx.answer = ctx.answer
                             
                             // отправка сохранений
-                            await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
+                            await makeReq(`${this.getHelperServerIP}/api/exams/saving-update`, 'POST', {
                                 auth: {
                                     id: this.getUserData.authData.id,
                                     token: this.getUserData.authData.token.key,
@@ -641,7 +649,7 @@ export default {
                 )))
                 
                 if(this.getUserData.authData){
-                    await makeReq(`${this.getAdminServerIP}/api/exams/saving-update`, 'POST', {
+                    await makeReq(`${this.getHelperServerIP}/api/exams/saving-update`, 'POST', {
                         auth: {
                             id: this.getUserData.authData.id,
                             token: this.getUserData.authData.token.key,
@@ -962,99 +970,143 @@ export default {
 
         async sendAnswers(step){
             if(!this.blockSend){
+                if(this.answeredQuestions.length == this.answers.length || this.timer == 0){
+                    // block send
+                    this.blockSend = true
 
-                // block send
-                this.blockSend = true
+                    // остановка времени
+                    const stopTime = Date.now()
 
-                // остановка времени
-                const stopTime = Date.now()
+                    // Добавление в userActions
+                    this.actionHandler('finish', { timestamp: stopTime })
 
-                // Добавление в userActions
-                this.actionHandler('finish', { timestamp: stopTime })
+                    this.clearAllProcess()
+                    this.blockActionBtns = true
 
-                this.clearAllProcess()
-                this.blockActionBtns = true
-
-                if(step=='send'){
-                    this.step='send'
-                    console.log('Send!');
-                } else if(step=='timeout'){
-                    this.step = 'timeout'
-                    console.log('Time over!');
-                }
-
-                setTimeout(async ()=>{
-                    // запуск модального окна
-                    this.showResultDialog = true
-                },1000)            
-
-                // отправка ответа на сервер
-                await makeReq(`${this.getExamServerIP}/api/exam/handlework`, 'POST', {
-                    auth: {
-                        id: this.getUserData.authData.id,
-                        token: this.getExamToken,
-                    },
-                    exam: {
-                        examID: this.getCurrentExamID,
-                        answers: this.answers,
-                        isComplex: this.getCurrentExam.isComplex,
-                        subject: this.ticket.subject,
-                        ticketID: this.ticket.ticketNumber
+                    if(step=='send'){
+                        this.step='send'
+                        console.log('Send!');
+                    } else if(step=='timeout'){
+                        this.step = 'timeout'
+                        console.log('Time over!');
                     }
-                })
-                .then(async (data)=>{
-                    console.log(data);
-                    this.examResults = data.data.result
 
-                    // Отправка результатов в админ сервер
-                    await makeReq(`${this.getAdminServerIP}/api/exams/finishexam`, 'POST', {
-                        auth: {
-                            id: this.getUserData.authData.id,
-                            token: this.getUserData.authData.token.key,
-                        },
-                        data:{
-                            exam:{
-                                examID: this.getCurrentExamID,
-                                subject: this.ticket.subject,
-                                residualTime: this.timer,
-                                startTime: this.startTime
-                            },
-                            results: data.data.result,
-                            actions: this.userActions
+                    setTimeout(async ()=>{
+                        // запуск модального окна
+                        this.showResultDialog = true
+                    },1000)
+
+                    const examsData = await makeReq(`${this.getHelperServerIP}/api/exams/check-user-exams`, 'POST', {
+                        data: {
+                            userID: this.getUserData.authData.id
                         }
                     })
-                    .then((response)=>{
-                        // удаление сохранения
-                        this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
-                            {
-                                type: 'deleteSaving',
-                                ctx: {
-                                    id: this.getCurrentSaving
-                                }
+
+                    if(examsData){
+                        // отправка ответа на сервер
+                        await makeReq(`${this.getExamServerIP}/api/exam/handlework`, 'POST', {
+                            auth: {
+                                id: this.getUserData.authData.id,
+                                token: this.getExamToken,
+                            },
+                            exam: {
+                                examID: this.getCurrentExamID,
+                                answers: this.answers,
+                                isComplex: this.getCurrentExam.isComplex,
+                                subject: this.ticket.subject,
+                                ticketID: this.ticket.ticketNumber,
+                                haveNextExam: examsData.data.exams > 1 ? true : false
                             }
-                        )))
-                        console.log(response);
-                    })
+                        })
+                        .then(async (data)=>{
+                            console.log(data)
 
-                })
-                .then(()=>{
-                    if(this.getCurrentModuleExam.params.showResults && this.getCurrentModuleExam.params.resultDisplayTime !== null && typeof this.getCurrentModuleExam.params.resultDisplayTime == 'number'){
-                        setTimeout(()=>{
-                            this.exitExam()
-                        }, this.getCurrentModuleExam.params.resultDisplayTime * 1000)
-                    }
+                            if(data.data.result.olympian){
 
-                    if(!this.getCurrentModuleExam.params.showResults) this.exitExam()
-                })
-                .catch(error=>{
-                    console.error(error)
-                })
+                                console.log('Is olympian');
+                                this.ticket.questions.forEach(checkedQ => {
+                                    const target = this.userActions.findLast(action => action.actType == 'answering' && action.ctx.currentQuestion == checkedQ.id )
+                                    const targetFault = data.data.result.faults.find( fault => fault.id == checkedQ.id )
+
+                                    if(target && target.ctx.answer && !targetFault){
+                                        const index = this.userActions.indexOf(target)
+                                        const correctAnswer = data.data.result.currectAnswers.find(co => co.id == checkedQ.id)
+                                        this.userActions[index].ctx.answer = checkedQ.multipleAnswers && checkedQ.type != 'question-with-field' ? correctAnswer.answers : !checkedQ.multipleAnswers && checkedQ.type != 'question-with-field' ? correctAnswer.answers[0] : correctAnswer.answer
+                                    }
+                                })
+                                
+                                this.ticket.additionalQuestions.forEach(checkedQ => {
+                                    const target = this.userActions.findLast(action => action.actType == 'answering' && action.ctx.currentQuestion == checkedQ.id )
+                                    const targetFault = data.data.result.faults.find( fault => fault.id == checkedQ.id )
+
+                                    if(target && target.ctx.answer && !targetFault){
+                                        const index = this.userActions.indexOf(target)
+                                        const correctAnswer = data.data.result.currectAnswers.find(co => co.id == checkedQ.id)
+                                        this.userActions[index].ctx.answer = checkedQ.multipleAnswers && checkedQ.type != 'question-with-field' ? correctAnswer.answers : !checkedQ.multipleAnswers && checkedQ.type != 'question-with-field' ? correctAnswer.answers[0] : correctAnswer.answer
+                                    }
+                                })
+
+                                console.log(this.userActions);
+                            }
+
+                            this.examResults = data.data.result
+                            this.startResultDialogTimer = true
+
+                            // Отправка результатов в админ сервер
+                            await makeReq(`${this.getAdminServerIP}/api/exams/finishexam`, 'POST', {
+                                auth: {
+                                    id: this.getUserData.authData.id,
+                                    token: this.getUserData.authData.token.key,
+                                },
+                                data:{
+                                    exam:{
+                                        examID: this.getCurrentExamID,
+                                        subject: this.ticket.subject,
+                                        residualTime: this.timer,
+                                        startTime: this.startTime
+                                    },
+                                    results: data.data.result,
+                                    actions: this.userActions
+                                }
+                            })
+                            .then((response)=>{
+                                // удаление сохранения
+                                console.log(this.getCurrentSaving);
+                                this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                                    {
+                                        type: 'deleteSaving',
+                                        ctx: {
+                                            id: this.getCurrentSaving
+                                        }
+                                    }
+                                )))
+                                this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
+                                    {
+                                        type: 'clearDB'
+                                    }
+                                )))
+                                
+                                console.log(this.getCurrentModuleExam.params);
+                                if(this.getCurrentModuleExam.params.showResults && this.getCurrentModuleExam.params.resultDisplayTime !== null && typeof this.getCurrentModuleExam.params.resultDisplayTime == 'number'){
+                                    setTimeout(()=>{
+                                        this.exitExam()
+                                    }, this.getCurrentModuleExam.params.resultDisplayTime * 1000)
+                                }
+
+                                if(!this.getCurrentModuleExam.params.showResults) this.exitExam()
+                                console.log(response);
+                            })
+
+                        })
+                    }  
+                }
         
             }
         },
 
         exitExam(isStopping){
             if(!this.exitClaim){
+                this.deleteExam(this.getCurrentExamID)
                 // работа с комплексом экзаменов
                 console.log(this.getCurrentExamsList);
                 if(this.getCurrentExamsList && !isStopping) {
@@ -1083,8 +1135,44 @@ export default {
                         this.setExamToken(undefined)
                         this.$router.push('/auth')
                     }
-                } else {
-                         
+                }
+                else if(this.getExams.length){
+                    const examsList = []
+                    
+                    this.getExams.forEach(ue =>{
+                        if(ue!==null){
+                            examsList.push(ue)
+                        }
+                    })
+
+                    if(examsList.length){
+                        this.setCurrentModuleExam(undefined)   
+                        this.setExamState(false)
+                        this.setExamLanguage(undefined)
+                        this.setCurrentExamsList(undefined)
+                        this.setCurrentExamID(undefined)
+                        this.setCurrentExam(undefined)
+                        this.setCurrentTickets(undefined)
+                        this.setAuthState(false)
+                        this.$router.push('/coordinator')
+                    
+                        this.clearAllProcess()
+                    } else {
+                        this.setCurrentModuleExam(undefined)   
+                        this.setExamState(false)
+                        this.setExamLanguage(undefined)
+                        this.setCurrentExamsList(undefined)
+                        this.setCurrentExamID(undefined)
+                        this.setCurrentExam(undefined)
+                        this.setCurrentTickets(undefined)
+                        this.setUserData(undefined)
+                        this.setAuthState(false)
+                        this.setExamToken(undefined)
+                        this.$router.push('/auth')
+                    
+                        this.clearAllProcess()
+                    }
+                }else {
                     this.setCurrentModuleExam(undefined)   
                     this.setExamState(false)
                     this.setExamLanguage(undefined)
@@ -1297,14 +1385,19 @@ export default {
 
             document.removeEventListener('keydown', this.handleKeyDown); // удаление обработчика
 
-            // удаление worker
-            if(this.actionsSaveWorker){
-                this.actionsSaveWorker.terminate()
-            }
+            // // удаление worker
+            // if(this.actionsSaveWorker){
+            //     this.actionsSaveWorker.terminate()
+            // }
         }
     },
     unmounted(){
         this.clearAllProcess()
+
+         // удаление worker
+         if(this.actionsSaveWorker){
+             this.actionsSaveWorker.terminate()
+         }
     }
 }
 </script>

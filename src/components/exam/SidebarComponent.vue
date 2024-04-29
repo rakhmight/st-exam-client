@@ -95,6 +95,7 @@
                 :ticket="ticket"
                 :timer="timer"
                 :answers="answers"
+                :startResultDialogTimer="startResultDialogTimer"
                 />
             </div>
         </div>
@@ -154,7 +155,8 @@ export default {
         showResultDialog: Boolean,
         exitExam: Function,
         examResults: Object || undefined,
-        timer: Number
+        timer: Number,
+        startResultDialogTimer: Boolean
     },
     components:{
         ResultDialog

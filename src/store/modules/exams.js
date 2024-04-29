@@ -6,11 +6,19 @@ export default {
         currentExamID: undefined,
         examLanguage: undefined,
         examState: false,
+        examsStatusUpdating: false,
+        examsListNeedToUpdating: false,
         // for complex
         currentExamsList: undefined,
         currentModuleExam: undefined
     },
     getters: {
+        getExamsListNeedToUpdating(state){
+            return state.examsListNeedToUpdating
+        },
+        getExamsStatusUpdating(state){
+            return state.examsStatusUpdating
+        },
         getExams(state){
             return state.exams
         },
@@ -39,6 +47,32 @@ export default {
         }
     },
     mutations: {
+        updateExamsStatus(state, value){
+            const target = state.exams.find(exam => exam.id == value.id)
+
+            if(target){
+                const index = state.exams.indexOf(target)
+
+                if(value.status == 'begun'){
+                    state.exams[index].hasBegun = true
+                } else if(value.status == 'stopped'){
+                    state.exams[index].hasBegun = false
+                }
+                
+                state.examsStatusUpdating = !state.examsStatusUpdating
+            }
+            else {
+                state.examsListNeedToUpdating = !state.examsListNeedToUpdating
+            }
+        },
+        deleteExam(state, value){
+            const target = state.exams.find(exam => exam.id == value)
+
+            if(target){
+                const index = state.exams.indexOf(target)
+                state.exams.splice(index, 1)
+            }
+        },
         setExams(state, value){
             state.exams = value
         },

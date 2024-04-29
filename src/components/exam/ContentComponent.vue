@@ -14,7 +14,7 @@
             </div>
 
             <div class="question-img d-flex justify-center" v-if="question.type=='question-with-images' || question.type=='question-with-field'">
-                <div class="qwi" style="width: 55%;" v-if="question.type=='question-with-images' && question.context.imagePreview">
+                <div class="qwi" style="width: 55%; max-height: 40vh;" v-if="question.type=='question-with-images' && question.context.imagePreview">
                     <v-img :src="question.context.imagePreview"></v-img>
                 </div>
                 <div class="qwf mt-3" style="width: 100%;" v-if="question.type=='question-with-field' && question.context.imagePreview">
@@ -49,13 +49,13 @@
                             {{ getExamLanguage=='ru' ? answer.answerCtx.ru : getExamLanguage=='eng' ? answer.answerCtx.eng : getExamLanguage=='custom' ? answer.answerCtx.custom : getExamLanguage=='uz_k' ? answer.answerCtx.uz_k : getExamLanguage=='uz_l' ? answer.answerCtx.uz_l : getExamLanguage=='fr' ? answer.answerCtx.fr : getExamLanguage=='de' ? answer.answerCtx.de : 'Language not chose'}}
                         </div>
                         
-                        <div style="width: 120px;" class="mt-2" v-if="getExamLanguage=='ru' && !answer.answerCtx.ru && answer.imagePreview || getExamLanguage=='eng' && !answer.answerCtx.eng && answer.imagePreview || getExamLanguage=='custom' && !answer.answerCtx.custom && answer.imagePreview || getExamLanguage=='uz_l' && !answer.answerCtx.uz_l && answer.imagePreview || getExamLanguage=='uz_k' && !answer.answerCtx.uz_k && answer.imagePreview || getExamLanguage=='fr' && !answer.answerCtx.fr && answer.imagePreview || getExamLanguage=='de' && !answer.answerCtx.de && answer.imagePreview">
+                        <div style="width: 120px; max-height: 30vh;" class="mt-2" v-if="getExamLanguage=='ru' && !answer.answerCtx.ru && answer.imagePreview || getExamLanguage=='eng' && !answer.answerCtx.eng && answer.imagePreview || getExamLanguage=='custom' && !answer.answerCtx.custom && answer.imagePreview || getExamLanguage=='uz_l' && !answer.answerCtx.uz_l && answer.imagePreview || getExamLanguage=='uz_k' && !answer.answerCtx.uz_k && answer.imagePreview || getExamLanguage=='fr' && !answer.answerCtx.fr && answer.imagePreview || getExamLanguage=='de' && !answer.answerCtx.de && answer.imagePreview">
                             <v-img :src="answer.imagePreview"></v-img>
                         </div>
                     </div>
                     
                     <div class="d-flex justify-center" v-if="answer.imagePreview && answer.answerCtx.ru && getExamLanguage=='ru' || answer.imagePreview && answer.answerCtx.eng && getExamLanguage=='eng' || answer.imagePreview && answer.answerCtx.custom && getExamLanguage=='custom' || answer.imagePreview && answer.answerCtx.uz_l && getExamLanguage=='uz_l' || answer.imagePreview && answer.answerCtx.uz_k && getExamLanguage=='uz_k' || answer.imagePreview && answer.answerCtx.fr && getExamLanguage=='fr' || answer.imagePreview && answer.answerCtx.de && getExamLanguage=='de'">
-                        <div style="width: 120px;" class="mt-2">
+                        <div style="width: 120px; max-height: 30vh;" class="mt-2">
                             <v-img :src="answer.imagePreview"></v-img>
                         </div>
                     </div>
@@ -82,12 +82,12 @@
                         </div>
                         
                         
-                        <div style="width: 120px;" class="mt-2" v-if="getExamLanguage=='ru' && !answer.answerCtx.ru && answer.imagePreview || getExamLanguage=='eng' && !answer.answerCtx.eng && answer.imagePreview || getExamLanguage=='custom' && !answer.answerCtx.custom && answer.imagePreview || getExamLanguage=='uz_l' && !answer.answerCtx.uz_l && answer.imagePreview || getExamLanguage=='uz_k' && !answer.answerCtx.uz_k && answer.imagePreview || getExamLanguage=='fr' && !answer.answerCtx.fr && answer.imagePreview || getExamLanguage=='de' && !answer.answerCtx.de && answer.imagePreview">
+                        <div style="width: 120px; max-height: 30vh;" class="mt-2" v-if="getExamLanguage=='ru' && !answer.answerCtx.ru && answer.imagePreview || getExamLanguage=='eng' && !answer.answerCtx.eng && answer.imagePreview || getExamLanguage=='custom' && !answer.answerCtx.custom && answer.imagePreview || getExamLanguage=='uz_l' && !answer.answerCtx.uz_l && answer.imagePreview || getExamLanguage=='uz_k' && !answer.answerCtx.uz_k && answer.imagePreview || getExamLanguage=='fr' && !answer.answerCtx.fr && answer.imagePreview || getExamLanguage=='de' && !answer.answerCtx.de && answer.imagePreview">
                             <v-img :src="answer.imagePreview"></v-img>
                         </div>
                     </div>
                     <div class="d-flex justify-center" v-if="answer.imagePreview && answer.answerCtx.ru && getExamLanguage=='ru' || answer.imagePreview && answer.answerCtx.eng && getExamLanguage=='eng' || answer.imagePreview && answer.answerCtx.custom && getExamLanguage=='custom' || answer.imagePreview && answer.answerCtx.uz_l && getExamLanguage=='uz_l' || answer.imagePreview && answer.answerCtx.uz_k && getExamLanguage=='uz_k' || answer.imagePreview && answer.answerCtx.fr && getExamLanguage=='fr' || answer.imagePreview && answer.answerCtx.de && getExamLanguage=='de'">
-                        <div style="width: 120px;" class="mt-2">
+                        <div style="width: 120px; max-height: 30vh;" class="mt-2">
                             <v-img :src="answer.imagePreview"></v-img>
                         </div>
                     </div>

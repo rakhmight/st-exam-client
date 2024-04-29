@@ -2,6 +2,7 @@
 import { app, protocol, BrowserWindow, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import { autoUpdater } from "electron-updater"
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const exampleMenuTemplate = [
   {
@@ -52,16 +53,11 @@ async function createWindow() {
     resizable: false,
     frame: !app.isPackaged ? true : false,
     webPreferences: {
-      
-      // Use pluginOptions.nodeIntegration, leave this alone
-      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: true,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
       devTools: !app.isPackaged,
     }
   })
-
-
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -108,6 +104,11 @@ app.on('ready', async () => {
   createWindow()
 })
 
+app.setLoginItemSettings({
+  openAtLogin: true,
+  path: app.getPath("exe")
+})
+
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
@@ -122,3 +123,7 @@ if (isDevelopment) {
     })
   }
 }
+
+autoUpdater.on('update-downloaded', () => {
+  autoUpdater.quitAndInstall();
+});
