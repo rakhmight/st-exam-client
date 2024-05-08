@@ -377,9 +377,21 @@ export default {
             // console.log('this.ticket', this.ticket)
 
             if(this.savingAvaible){
-                this.savingAvaible.actions.forEach((action, i)=>{
+                const lastActualActions = []
+
+                this.savingAvaible.actions.forEach((action, i) => {
                     if(action.actType=='answering' && i != 0){
-                        const target = answersPrepare.find(answer => answer.id == action.ctx.currentQuestion)
+                    if(action.ctx.answer!==null){
+                        const target = this.savingAvaible.actions.findLast(item => item.ctx.currentQuestion == action.ctx.currentQuestion)
+                        lastActualActions.push(target)
+                    }
+                    }
+                })
+
+                lastActualActions.forEach(action => {
+                    const target = answersPrepare.find(answer => answer.id == action.ctx.currentQuestion)
+                    
+                    if(target){
                         const index = answersPrepare.indexOf(target)
 
                         if(action.ctx.answer!==null){
