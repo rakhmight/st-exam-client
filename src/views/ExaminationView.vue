@@ -196,7 +196,7 @@ export default {
         ContentComponent
     },
     mounted(){
-        if(!this.getAuthState || !this.getCurrentTickets || !this.getExamState || !this.getExamLanguage){
+        if(!this.getAuthState || !this.getCurrentTickets || !this.getExamState || !this.getExamLanguage || !this.getUserData || !this.getUserData.authData){
             this.$router.push('/')
         }
 
@@ -205,26 +205,26 @@ export default {
             this.actionsSaveWorker = new Worker(path.join(process.env.BASE_URL, 'workers', 'actionsSaveWorker.js'));
 
             // прослушиваем события с воркера
-            this.actionsSaveWorker.onmessage = (event) => {
-                const workerData = event.data
-                console.log(workerData);
+            // this.actionsSaveWorker.onmessage = (event) => {
+            //     const workerData = event.data
+            //     console.log(workerData);
 
-                // if(workerData.type=='check-saving-exist'){
+            //     // if(workerData.type=='check-saving-exist'){
 
-                //     if(workerData.saving!==null){
-                //         console.log(1);
-                //         this.setCurrentSaving(workerData.saving.id)
-                //         this.userActions.push(...workerData.saving.actions)
-                //         this.savingAvaible = true
-                //         console.log(workerData);
-                //     } else if(workerData.saving === null) {
-                //         this.savingAvaible = false
-                //         console.log(2);
-                //     }
+            //     //     if(workerData.saving!==null){
+            //     //         console.log(1);
+            //     //         this.setCurrentSaving(workerData.saving.id)
+            //     //         this.userActions.push(...workerData.saving.actions)
+            //     //         this.savingAvaible = true
+            //     //         console.log(workerData);
+            //     //     } else if(workerData.saving === null) {
+            //     //         this.savingAvaible = false
+            //     //         console.log(2);
+            //     //     }
                     
-                //     this.beginExam()
-                // }
-            }
+            //     //     this.beginExam()
+            //     // }
+            // }
         } else if(!window.Worker){
             //
             console.error('[Web-workers] This device not support web-workers')
@@ -251,6 +251,11 @@ export default {
         })
 
         socket.on(`client-stop-${this.getUserData.authData.id}-${this.getCurrentExamID}`, ()=>{
+            this.actionHandler('stop')
+        })
+
+        socket.on(`client-reset-${this.getUserData.authData.id}-${this.getCurrentExamID}`, (data)=>{
+            this.setExamToken(data.token)
             this.actionHandler('stop')
         })
 
@@ -1032,6 +1037,7 @@ export default {
                         })
                         .then(async (data)=>{
                             console.log(data)
+                            this.setExamToken(data.data.result.token)
 
                             if(data.data.result.olympian){
 

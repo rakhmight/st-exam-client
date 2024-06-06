@@ -85,15 +85,32 @@
                     </div>
                 </div>
 
-                <div class="timer" v-if="step=='timer'">
+                <div class="timer" v-if="step=='timer' || step=='stop'">
                     <div class="d-flex flex-column align-center">
                         <spinner-component/>
                         <div class="mt-7">
-                            <span style="font-size: 1.2em;">{{ currentLang.prepareView[9] }}: <span style="font-weight: 700; color:var(--special-color)">{{ time }}</span></span>
+                            <span style="font-size: 1.2em;" v-if="step=='timer'">{{ currentLang.prepareView[9] }}: <span style="font-weight: 700; color:var(--special-color)">{{ time }}</span></span>
+                            <span v-if="step=='stop'" style="font-size: 1.2em; color: red">{{ currentLang.prepareView[10] }}</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        
+        <div style="position: absolute; bottom: 0; right: 0; z-index: 777; padding: 2px 20px">
+            <v-btn
+            icon
+            v-bind="props"
+            color="var(--red-color)"
+            density="comfortable"
+            @click="exitToCoordination()"
+            >
+                <v-icon
+                size="18"
+                color="white"
+                >mdi-exit-to-app</v-icon>
+            </v-btn>
         </div>
     </div>
 </template>
@@ -102,6 +119,7 @@
 import { mapGetters, mapMutations } from 'vuex';
 import { getSubject } from '@/utils/getInfo';
 import SpinnerComponent from '@/components/SpinnerComponent'
+import { socket } from '@/socket';
 
 export default {
     data(){
@@ -109,7 +127,8 @@ export default {
             step: undefined,
             language: undefined,
             time: 5,
-            timerInterval: undefined
+            timerInterval: undefined,
+            timerTimeout: undefined,
         }
     },
     components: {
@@ -117,7 +136,17 @@ export default {
     },
     computed: mapGetters(['getInitializationProcess', 'getUserData', 'getCurrentTickets', 'getCurrentExamID', 'getExams', 'getSubjects', 'getCurrentExam', 'getCurrentModuleExam', 'getCurrentExamsList', 'currentLang']),
     methods: {
-        ...mapMutations(['setCurrentExam', 'setExamLanguage', 'setExamState', 'setCurrentExamsList', 'setCurrentModuleExam']),
+        ...mapMutations(['setCurrentExam', 'setExamLanguage', 'setExamState', 'setCurrentExamsList', 'setCurrentModuleExam', 'setExamToken', 'updExamUserStatus', 'setCurrentTickets', 'setCurrentExamID']),
+
+        exitToCoordination(){
+            clearInterval(this.timerInterval)
+            clearTimeout(this.timerTimeout)
+            this.setCurrentTickets(undefined)
+            this.setCurrentExamID(undefined)
+            this.setCurrentExam(undefined)
+            this.setCurrentModuleExam(undefined)
+            this.$router.push('/coordinator')
+        },
 
         getTicketsCount(){
             const currentTicket = this.getCurrentTickets.find(ticket => ticket.subject == this.getCurrentModuleExam.subject)
@@ -157,11 +186,21 @@ export default {
                 }
             },1000)
 
-            setTimeout(()=>{
+            this.timerTimeout = setTimeout(()=>{
                 clearInterval(this.timerInterval)
-                this.setExamState(true)
-                this.$router.push('/exam')
-                console.log('Begin!');
+
+                if(this.step != 'stop'){
+                    this.setExamState(true)
+                    this.$router.push('/exam')
+                    console.log('Begin!');
+                } else {
+                    clearTimeout(this.timerTimeout)
+                    this.setCurrentTickets(undefined)
+                    this.setCurrentExamID(undefined)
+                    this.setCurrentExam(undefined)
+                    this.setCurrentModuleExam(undefined)
+                    this.$router.push('/coordinator')
+                }
             }, 5200)
         }
     },
@@ -221,9 +260,23 @@ export default {
             this.setExamLanguage(this.getCurrentModuleExam.params.languages[0])
             this.beginExam()
         }
+
+        
+        socket.on(`client-reset-${this.getUserData.authData.id}`, (data)=>{
+            this.setExamState(false)
+            this.updExamUserStatus({ id: data.examID, status: 'waiting' })
+            this.setExamToken(data.token)
+            this.step = 'stop'
+        })
+        socket.on(`client-stop-${this.getUserData.authData.id}`, (data)=>{
+            this.setExamState(false)
+            this.updExamUserStatus({ id: data.examID, status: 'blocked' })
+            this.step = 'stop'
+        })
     },
     unmounted(){
         clearInterval(this.timerInterval)
+        clearTimeout(this.timerTimeout)
     }
 }
 </script>

@@ -106,6 +106,14 @@ export default {
         setCurrentModuleExam(state, value){
             state.currentModuleExam = value
         },
+
+        updExamUserStatus(state, value){
+            const target = state.exams.find( ex=> ex.id == value.id )
+            if(target){
+                const index = state.exams.indexOf(target)
+                state.exams[index].userStatus = value.status
+            }
+        }
     },
     actions: {
     }

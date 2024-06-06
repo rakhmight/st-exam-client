@@ -54,6 +54,7 @@ import { mapGetters, mapMutations } from 'vuex';
 import SpinnerComponent from '@/components/SpinnerComponent'
 import ExamCard from '@/components/coordinator/ExamCard.vue'
 import makeReq from '@/utils/makeReq';
+import { socket } from '@/socket';
 
 export default {
     data(){
@@ -101,7 +102,7 @@ export default {
         }
     },
     methods:{
-        ...mapMutations(['setUserData', 'setExams', 'setAuthState', 'setExamToken']),
+        ...mapMutations(['setUserData', 'setExams', 'setAuthState', 'setExamToken', 'updExamUserStatus']),
 
         exitToAuth(){
             this.setExams([])
@@ -232,6 +233,14 @@ export default {
             }
 
         }
+
+        socket.on(`client-reset-${this.getUserData.authData.id}`, (data)=>{
+            this.updExamUserStatus({ id: data.examID, status: 'waiting' })
+            this.setExamToken(data.token)
+        })
+        socket.on(`client-stop-${this.getUserData.authData.id}`, (data)=>{
+            this.updExamUserStatus({ id: data.examID, status: 'blocked' })
+        })
     },
     components:{
         SpinnerComponent,
