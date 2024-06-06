@@ -6,7 +6,6 @@ import vuetify from './plugins/vuetify'
 import { loadFonts } from './plugins/webfontloader'
 import path from 'path-browserify'
 import "core-js";
-import log from 'electron-log/main';
 
 loadFonts()
 
@@ -15,7 +14,6 @@ app.use(vuetify)
 app.use(store)
 app.use(router)
 
-log.initialize();
 
 // Global error handler
 app.config.errorHandler = (err, instance, info) => {

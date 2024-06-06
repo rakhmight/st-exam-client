@@ -97,8 +97,6 @@ import { mapMutations, mapGetters } from "vuex"
 import path from 'path-browserify'
 import makeReq from "./utils/makeReq";
 import { socket } from '@/socket';
-import log from "electron-log";
-log.info(`hello`);
 
 export default {
   name: "App",
