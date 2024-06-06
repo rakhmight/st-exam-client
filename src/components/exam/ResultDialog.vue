@@ -69,7 +69,7 @@
                 <td>
                   <v-tooltip location="bottom">
                       <template v-slot:activator="{ props }">
-                          <span style="cursor: help;" v-bind="props" class="td-ctx">{{ examResults.percentage.toFixed(0) }}%</span>
+                          <span style="cursor: help;" v-bind="props" class="td-ctx">{{ examResults.percentage ? examResults.percentage.toFixed(0) : 'unknown' }}%</span>
                       </template>
                       <span>{{ examResults.percentage }}</span>
                   </v-tooltip>

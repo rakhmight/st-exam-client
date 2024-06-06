@@ -115,9 +115,10 @@
                 <span>{{ `${getUserData.userData.bio.firstName ? getUserData.userData.bio.firstName : ''} ${getUserData.userData.bio.lastName ? getUserData.userData.bio.lastName : ''} ${getUserData.userData.bio.patronymic ? getUserData.userData.bio.patronymic : ''}` }}</span>
             </v-tooltip>
             
-            <div class="mt-2" style="font-size: 0.9rem;">
+            <div class="" style="font-size: 0.9rem;">
                 <div v-if="getUserData.userData.userRole == 'student'">
-                        <span>student of {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }} course {{ getUserData.userData.roleProperties.group }} group ({{ getUserData.userData.roleProperties.educationForm }})</span>
+                        <span v-if="currentLang.language == 'ru'">{{ getUserData.userData.roleProperties.educationForm == 'full-time' ? currentLang.examView[62] : getUserData.userData.roleProperties.educationForm == 'in-absentia' ? currentLang.examView[63] : getUserData.userData.roleProperties.educationForm == 'magistracy' ? currentLang.examView[64] : 'unknown' }} {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}-{{ currentLang.examView[65] }}  {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}{{ getUserData.userData.roleProperties.group < 10 ? `0${getUserData.userData.roleProperties.group}` : getUserData.userData.roleProperties.group }}-{{ currentLang.examView[66] }}</span>
+                        <span v-if="currentLang.language == 'uz_l'">{{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}-{{ currentLang.examView[65] }}  {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}{{ getUserData.userData.roleProperties.group < 10 ? `0${getUserData.userData.roleProperties.group}` : getUserData.userData.roleProperties.group }}-{{ currentLang.examView[66] }} {{ getUserData.userData.roleProperties.educationForm == 'full-time' ? currentLang.examView[62] : getUserData.userData.roleProperties.educationForm == 'in-absentia' ? currentLang.examView[63] : getUserData.userData.roleProperties.educationForm == 'magistracy' ? currentLang.examView[64] : 'unknown' }}</span>
                 </div>
                 <div v-if="getUserData.userData.userRole == 'enrollee'">
                     <span>enrollee of {{ getUserData.userData.roleProperties.group }} group ({{ getUserData.userData.roleProperties.admissionYear }}, {{ getUserData.userData.roleProperties.formOfEducation }})</span>
@@ -131,7 +132,7 @@
             </div>
 
             <div class="mt-2">
-                <p style="font-size: 0.9rem;">Login: {{ getUserData.authData.login }}</p>
+                <p style="font-size: 1.2rem;">{{ currentLang.examView[67] }}: {{ getUserData.authData.login }}</p>
             </div>
         </div>
     </div>

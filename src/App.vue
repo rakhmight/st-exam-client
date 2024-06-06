@@ -6,8 +6,9 @@
         <div style="position: absolute; bottom: 0; left: 0; z-index: 777; padding: 2px 20px">
           <v-menu
           offset-y
-          max-width="120"
+          max-width="220"
           center
+          density="compact"
           >
               <template v-slot:activator="{ props }">
               <v-btn
@@ -31,6 +32,9 @@
                   @click="setLanguage(lang.short)"
                   density="compact"
                 >
+                  <template v-slot:prepend v-if="activeLang==lang.short">
+                    <v-icon icon="mdi-check"></v-icon>
+                  </template>
                   <v-list-item-title><span style="color: #0167FF">{{lang.lang}}</span></v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -107,7 +111,7 @@ export default {
         {lang: 'русский', short: 'ru'},
         {lang: "o'zbek", short: 'uz_l'}
       ],
-      activeLang: 'ru'
+      activeLang: 'uz_l'
     };
   },
   methods: {
@@ -133,7 +137,7 @@ export default {
   //   }
   // },
   async mounted() {
-
+    
     // Local DB init
     initDB();
 

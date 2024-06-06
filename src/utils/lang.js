@@ -1,5 +1,6 @@
 const lang = {
     ru: {
+        language: 'ru',
         prepareView: [
             'Комплексный экзамен',
             'Экзамен',
@@ -11,6 +12,7 @@ const lang = {
             'Выберите язык',
             'Начать',
             'Экзамен начнётся через',
+            "Вы были дисквалифицированы с экзамена"
         ],
         authView: [
             'Введите данные для входа',
@@ -83,7 +85,8 @@ const lang = {
             'и др.',
             'Экзамен завершён',
             'Экзамен ещё не начат',
-            'Данный пользователь уже проходит этот экзамен'
+            'Данный пользователь уже проходит этот экзамен',
+            "Вы были дисквалифицированы",
         ],
         initView: [
             'Проверка зависимостей',
@@ -154,15 +157,22 @@ const lang = {
             'Верный ответ',
             'Неверный ответ',
             'Неверно указана область',
-            'Время, отведённое для ознакомления с результатом', // 56
+            'Время, отведённое для ознакомления с результатом',
             'Администратор остановил ваш экзамен',
             'Администратор удалали этот экзамен',
             'Потерено соединение с сервером. Обратитесь к администратору',
             'Отправить', // 60
             'Аминистратор исключил вас из списка экзаменуемых',
+            'Курсант',
+            'Слушатель',
+            'Магистр',
+            'курса',
+            'группы',
+            'Номер'
         ]
     },
     uz_l: {
+        language: 'uz_l',
         prepareView: [
             "Kompleks imtihon",
             "Imtihon",
@@ -173,7 +183,8 @@ const lang = {
             "Chipta",
             "Tilni tanlang",
             'Boshlash',
-            "Imtihon boshlanadi",
+            "Imtihon boshlanadi", // 9
+            "Siz imthondan chetlashtirildiz"
         ],
         authView: [
             "Kirish ma'lumotlaringizni kiriting",
@@ -231,7 +242,7 @@ const lang = {
             "Fan nomi",
             "Chiptalar soni",
             "Savollar soni",
-            "Ajratilgan vaqt",
+            "Ajratilgan vaqt", // 20
             "Mavzular",
             "1 savol uchun vaqt",
             "Mavjud tillar",
@@ -246,7 +257,8 @@ const lang = {
             'va boshq.',
             "Imtihon yakunlandi",
             "Imtihon hali boshlanmagan",
-            "Ushbu foydalanuvchi imtihoni topshirmoqda"
+            "Ushbu foydalanuvchi imtihoni topshirmoqda", // 35
+            "Ushbu imthondan chetlatilgansiz",
         ],
         initView: [
             "Bog'liklarni tekshirish",
@@ -311,8 +323,8 @@ const lang = {
             "Sarflangan vaqt",
             "Savollar",
             "Noto'g'ri javob berilgan savollar",
-            "Savol va javoblar", 
-            'Tanlanmagan javob', // 50
+            "Savol va javoblar", // 50
+            'Tanlanmagan javob',
             'Siz tanlagan javob',
             "To'g'ri javob",
             "Noto'g'ri javob",
@@ -321,8 +333,14 @@ const lang = {
             "Administrator imtihoningizni to'xtatdi",
             "Administrator bu imtihonni o'chirib tashladi",
             "Serverga ulanish uzildi. Administratorga murojaat qiling",
-            "Yuborish", 
-            "Administrator sizni imtihon topshiruvchilar ro'yxatidan olib tashladi"// 60
+            "Yuborish", // 60
+            "Administrator sizni imtihon topshiruvchilar ro'yxatidan olib tashladi",
+            'kursanti',
+            'tinglovchisi',
+            'magistri',
+            'kurs',
+            'guruhning',
+            'Raqam',
         ]
     }
 }

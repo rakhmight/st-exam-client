@@ -1,11 +1,11 @@
 <template>
-    <div class="card">
+    <div class="card" @click="tryToBeginExam()">
         <div class="card__header d-flex justify-center">
             <v-tooltip>
                 <template v-slot:activator="{ props }">
                     <!-- <v-icon size="70" color="var(--special-color)" v-if="exam.complex.length==1" v-bind="props">mdi-format-list-checkbox</v-icon> -->
                     <div style="width: 60px" v-if="!this.exam.isComplex" class="mt-2">
-                        <v-img src="@/assets/media/exam.png" v-bind="props"></v-img>
+                        <v-img src="@/assets/media/exam.png" v-bind="props" :style="exam.userStatus == 'blocked' ? 'filter : hue-rotate(110deg);' : ''"></v-img>
                     </div>
                 </template>
                 <span>{{ currentLang.coordinatorView[1] }}</span>
@@ -14,7 +14,7 @@
             <v-tooltip>
                 <template v-slot:activator="{ props }">
                     <div style="width: 60px" v-if="this.exam.isComplex" class="mt-2">
-                        <v-img src="@/assets/media/complex.png" v-bind="props"></v-img>
+                        <v-img src="@/assets/media/complex.png" v-bind="props" :style="exam.userStatus == 'blocked' ? 'filter : hue-rotate(110deg);' : ''"></v-img>
                     </div>
                     <!-- <v-icon size="70" color="var(--special-color)" v-if="exam.complex.length>1" v-bind="props">mdi-format-list-text</v-icon> -->
                 </template>
@@ -423,7 +423,7 @@
             <div>
                 <v-tooltip location="bottom">
                     <template v-slot:activator="{ props }">
-                        <v-icon size="22" color="var(--main-color)" v-bind="props" style="cursor: pointer" @click="tryToBeginExam()">mdi-play-circle-outline</v-icon>
+                        <v-icon size="22" :color="exam.userStatus== 'blocked' ? 'red' : 'var(--main-color)'" v-bind="props" style="cursor: pointer" @click="tryToBeginExam()">mdi-play-circle-outline</v-icon>
                     </template>
                     <span>{{ currentLang.coordinatorView[30] }}</span>
                 </v-tooltip>
@@ -580,77 +580,84 @@ export default {
             const tickets = []
             
             const currentExam = this.getExams.find(ex => ex.id==this.exam.id)
-            if(currentExam && currentExam.userAttempts){
-                const ticketsFA = currentExam.userAttempts.map(attempt=>{
-                    // console.log(attempt);
-                    return {
-                        subject: attempt.subject,
-                        ticket: attempt.attempts.ticket
-                    }
-                })
 
-                tickets.push(...ticketsFA)
-            }
-
-            // console.log(tickets);
-
-            if(!this.getCurrentTickets){
-                await makeReq(`${this.getAdminServerIP}/api/exams/init`, 'POST', {
-                    auth:{
-                        id: this.getUserData.authData.id,
-                        token: this.getUserData.authData.token.key,
-                    },
-                    data:{
-                        examID: this.exam.id
-                    }
-                })
-                .then(async (data)=>{
-                    if(data.statusCode == 200){
-                        const token = data.data.token
-
-                        this.setExamToken(token)
-
-                        await makeReq(`${this.getExamServerIP}/api/exam/begin`, 'POST', {
-                            auth: {
-                                id: this.getUserData.authData.id,
-                                token,
-                            },
-                            exam: {
-                                examID: this.exam.id,
-                                options: this.exam,
-                                tickets: tickets
-                            }
-                        })
-                        .then((data)=>{
-                            console.log(data);
-                            if(data.statusCode == 403){
-                                this.diniedExam(data.message)
-                            } else {
-                                this.setCurrentTickets(data.data.tickets)
-                                console.log(this.getCurrentTickets);
-                                this.setCurrentExamID(this.exam.id)
-                                this.launchPrepareProcess()
-                            }
-                        })
-                        .catch(error=>{
-                            console.error(error)
-                            return
-                        })
-                    } else if(data.statusCode == 403){
-                        if(data.data.cause == 'finished'){
-                            this.diniedExam(this.currentLang.coordinatorView[32])
-                        } else if(data.data.cause == 'not began'){
-                            this.diniedExam(this.currentLang.coordinatorView[33])
-                        } else if(data.data.cause == 'already began'){
-                            this.diniedExam(this.currentLang.coordinatorView[34])
+            if(currentExam.userStatus == 'blocked'){
+                this.diniedExam(this.currentLang.coordinatorView[35])
+            }else {
+                if(currentExam && currentExam.userAttempts){
+                    const ticketsFA = currentExam.userAttempts.map(attempt=>{
+                        // console.log(attempt);
+                        return {
+                            subject: attempt.subject,
+                            ticket: attempt.attempts.ticket
                         }
-                    }
-                    console.log(data);
-                })
-                .catch(error=>{
-                    console.error(error)
-                    return
-                })
+                    })
+
+                    tickets.push(...ticketsFA)
+                }
+
+                // console.log(tickets);
+
+                if(!this.getCurrentTickets){
+                    await makeReq(`${this.getAdminServerIP}/api/exams/init`, 'POST', {
+                        auth:{
+                            id: this.getUserData.authData.id,
+                            token: this.getUserData.authData.token.key,
+                        },
+                        data:{
+                            examID: this.exam.id
+                        }
+                    })
+                    .then(async (data)=>{
+                        if(data.statusCode == 200){
+                            const token = data.data.token
+
+                            this.setExamToken(token)
+
+                            await makeReq(`${this.getExamServerIP}/api/exam/begin`, 'POST', {
+                                auth: {
+                                    id: this.getUserData.authData.id,
+                                    token,
+                                },
+                                exam: {
+                                    examID: this.exam.id,
+                                    options: this.exam,
+                                    tickets: tickets
+                                }
+                            })
+                            .then((data)=>{
+                                console.log(data);
+                                if(data.statusCode == 403){
+                                    this.diniedExam(data.message)
+                                } else {
+                                    this.setCurrentTickets(data.data.tickets)
+                                    console.log(this.getCurrentTickets);
+                                    this.setCurrentExamID(this.exam.id)
+                                    this.launchPrepareProcess()
+                                }
+                            })
+                            .catch(error=>{
+                                console.error(error)
+                                return
+                            })
+                        } else if(data.statusCode == 403){
+                            if(data.data.cause == 'finished'){
+                                this.diniedExam(this.currentLang.coordinatorView[32])
+                            } else if(data.data.cause == 'not began'){
+                                this.diniedExam(this.currentLang.coordinatorView[33])
+                            } else if(data.data.cause == 'already began'){
+                                this.diniedExam(this.currentLang.coordinatorView[34])
+                            }
+                        }else if(data.statusCode == 400){
+                            this.diniedExam('bad request')
+                        }
+                        console.log(data);
+                    })
+                    .catch(error=>{
+                        console.error(error)
+                        return
+                    })
+                }
             }
         },
 
@@ -693,6 +700,9 @@ export default {
     display: flex;
     flex-direction: column;
     padding: 5px 0 0 0;
+}
+.card:hover{
+    cursor: pointer
 }
 .card__header{
     position: relative;
