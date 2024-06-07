@@ -2,6 +2,7 @@
     <v-dialog
       v-model="dialog"
       width="auto"
+      v-if="getCurrentModuleExam"
     >
       <template v-slot:activator="{ props }">
         <v-btn
@@ -347,7 +348,7 @@ export default {
     },
     watch:{
         startResultDialogTimer(){
-          if(this.getCurrentModuleExam.params.resultDisplayTime!=null){            
+          if(this.getCurrentModuleExam.params.resultDisplayTime!=null){
             this.resultTimerInterval = setInterval(()=>{
               if(this.resultTimer!=0) this.resultTimer-=1
               else{

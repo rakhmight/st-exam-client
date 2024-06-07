@@ -61,7 +61,7 @@ const lang = {
             'Начало',
             'Предметы',
             'Старт',
-            'по команде админа',
+            'по команде админа', // 10
             'Подробнее об экзамене',
             'Информация об экзамене',
             'Информация об комплексном экзамене',
@@ -71,7 +71,7 @@ const lang = {
             'Кол-во билетов',
             'Кол-во вопросов',
             'Отведённое время',
-            'Темы',
+            'Темы', // 20
             'Время на 1 вопрос',
             'Доступные языки',
             'Возможность изменить ответ',
@@ -80,13 +80,14 @@ const lang = {
             'хорошо',
             'удовлетворительно',
             'неограничено',
-            'мин.', // 29
-            'Начать экзамен',
+            'мин.',
+            'Начать экзамен', // 30
             'и др.',
             'Экзамен завершён',
             'Экзамен ещё не начат',
             'Данный пользователь уже проходит этот экзамен',
             "Вы были дисквалифицированы",
+            "Время на выбор экзамена",
         ],
         initView: [
             'Проверка зависимостей',
@@ -168,7 +169,12 @@ const lang = {
             'Магистр',
             'курса',
             'группы',
-            'Номер'
+            'Номер',
+            'Абитуриент',
+            "Преподаватель",
+            "Сотрудник", // 70
+            "кафедры",
+            "формирования",
         ]
     },
     uz_l: {
@@ -233,7 +239,7 @@ const lang = {
             "Boshlanish",
             "Fanlar",
             "Boshlanish",
-            "administrator tomonidan",
+            "administrator tomonidan", // 10
             "Imtihon haqida batafsil",
             "imtihon haqida ma'lumot",
             "Kompleks imtihon haqida ma'lumot",
@@ -242,8 +248,8 @@ const lang = {
             "Fan nomi",
             "Chiptalar soni",
             "Savollar soni",
-            "Ajratilgan vaqt", // 20
-            "Mavzular",
+            "Ajratilgan vaqt",
+            "Mavzular", // 20
             "1 savol uchun vaqt",
             "Mavjud tillar",
             "Javobni o'zgartirish imkoniyati",
@@ -253,12 +259,13 @@ const lang = {
             "qoniqarli",
             "cheklanmagan",
             'daq.',
-            "Imtihonni boshlash",
+            "Imtihonni boshlash", // 30
             'va boshq.',
             "Imtihon yakunlandi",
             "Imtihon hali boshlanmagan",
-            "Ushbu foydalanuvchi imtihoni topshirmoqda", // 35
+            "Ushbu foydalanuvchi imtihoni topshirmoqda",
             "Ushbu imthondan chetlatilgansiz",
+            "Imthonni tanglash uchun ajratilgan vaqt",
         ],
         initView: [
             "Bog'liklarni tekshirish",
@@ -341,6 +348,11 @@ const lang = {
             'kurs',
             'guruhning',
             'Raqam',
+            'abiturienti',
+            "o'qituvchisi",
+            "xodimi", // 70
+            "kafedrasining",
+            "bo'limning",
         ]
     }
 }

@@ -513,7 +513,7 @@ export default {
             const groupsList = []
 
             this.getUsersList.map(user => {
-                if(user.userRole == 'student' || user.userRole == 'enrollee'){
+                if(user.userRole == 'student'){
                     const targetGroup = groupsList.find(group => group.value == user.roleProperties.group)
 
                     if(!targetGroup && getCourse(user.roleProperties.recieptDate) == this.userCourse && user.userRole == this.userRole) groupsList.push({
@@ -521,7 +521,17 @@ export default {
                         value: user.roleProperties.group
                     })
                 }
+
+                if(user.userRole == 'enrollee'){
+                    const targetGroup = groupsList.find(group => group.value == user.roleProperties.group)
+                    if(!targetGroup && user.userRole == this.userRole) groupsList.push({
+                        title: user.roleProperties.group,
+                        value: user.roleProperties.group
+                    })
+                }
             })
+
+            console.log(groupsList);
             
             this.groups = groupsList.sort((a, b) => a.value - b.value)
         },
@@ -537,8 +547,8 @@ export default {
                 if(!targetRole) rolesList.push(user.userRole)
 
                 if(user.userRole == 'student' || user.userRole == 'enrollee'){
-                    const targetForm = user.userRole == 'student' ? formsList.find(form => form == user.roleProperties.educationForm) : formsList.find(form => form == user.roleProperties.formOfEducation)
-                    if(!targetForm) formsList.push(user.userRole == 'student' ? user.roleProperties.educationForm : user.roleProperties.formOfEducation)
+                    const targetForm = formsList.find(form => form == user.roleProperties.educationForm)
+                    if(!targetForm) formsList.push(user.roleProperties.educationForm)
 
                     if(user.userRole == 'student'){
                         const userCourse = getCourse(user.roleProperties.recieptDate)
@@ -554,6 +564,8 @@ export default {
                     if(!targetDepartment) departmentsList.push(user.roleProperties.department)
                 }
             })
+
+            console.log(this.getUsersList);
 
             this.roles = rolesList.map(role => {
                 if(role == 'student') return { title: this.currentLang.authView[23], value: role }
@@ -660,6 +672,9 @@ export default {
 
         userCourse(){
             this.makeGroupsList()
+        },
+        formOfStudy(){
+            if(this.userRole == 'enrollee') this.makeGroupsList()
         },
 
         userGroup(){

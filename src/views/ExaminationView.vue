@@ -1037,7 +1037,9 @@ export default {
                         })
                         .then(async (data)=>{
                             console.log(data)
-                            this.setExamToken(data.data.result.token)
+                            if(data.data.result.token){
+                                this.setExamToken(data.data.result.token)
+                            }
 
                             if(data.data.result.olympian){
 
@@ -1089,7 +1091,7 @@ export default {
                             })
                             .then((response)=>{
                                 // удаление сохранения
-                                console.log(this.getCurrentSaving);
+                                // console.log(this.getCurrentSaving);
                                 this.actionsSaveWorker.postMessage(JSON.parse(JSON.stringify(
                                     {
                                         type: 'deleteSaving',

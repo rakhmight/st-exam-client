@@ -39,7 +39,7 @@
 
             <div class="form__content">
                 <div class="languages" v-if="step=='choise-lang'">
-                    <div style="flex: 1 1 auto;" class="d-flex justify-center flex-column">
+                    <div style="flex: 1 1 auto;" class="d-flex justify-center flex-column" v-if="getCurrentModuleExam.params.languages.length>1">
                         <div>
                             <div class="d-flex justify-center"><span style="color:var(--special-color); font-size: 1.2em;">{{ currentLang.prepareView[7] }}</span></div>
 
@@ -71,7 +71,7 @@
                         </div>
                     </div>
 
-                    <div class="mt-3">
+                    <div class="mt-3" :style="getCurrentModuleExam.params.languages.length==1 ? 'flex: 1 1 auto;display: flex;align-items: center;' : ''">
                         <v-btn
                         density="compact"
                         :color="!language ? '#999' : 'var(--main-color)'"
@@ -112,6 +112,36 @@
                 >mdi-exit-to-app</v-icon>
             </v-btn>
         </div>
+
+        <div style="position: absolute; top: 0; left: 0; z-index: 777; padding:10px 20px; width: 100%">
+            <div class="d-flex align-center mt-2 w-full">
+                <v-icon size="20" color="var(--main-color)">mdi-account</v-icon>
+                <span class="ml-2" style="color: #555; width: 100%">
+
+                    <span v-if="getUserData.userData.userRole == 'student'">
+                        <span v-if="currentLang.language == 'ru'">{{ getUserData.userData.roleProperties.educationForm == 'full-time' ? currentLang.examView[62] : getUserData.userData.roleProperties.educationForm == 'in-absentia' ? currentLang.examView[63] : getUserData.userData.roleProperties.educationForm == 'magistracy' ? currentLang.examView[64] : 'unknown' }} {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}-{{ currentLang.examView[65] }}  {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}{{ getUserData.userData.roleProperties.group < 10 ? `0${getUserData.userData.roleProperties.group}` : getUserData.userData.roleProperties.group }}-{{ currentLang.examView[66] }} </span>
+                        <span v-if="currentLang.language == 'uz_l'">{{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}-{{ currentLang.examView[65] }}  {{ getCourse(+getUserData.userData.roleProperties.recieptDate) }}{{ getUserData.userData.roleProperties.group < 10 ? `0${getUserData.userData.roleProperties.group}` : getUserData.userData.roleProperties.group }}-{{ currentLang.examView[66] }} {{ getUserData.userData.roleProperties.educationForm == 'full-time' ? currentLang.examView[62] : getUserData.userData.roleProperties.educationForm == 'in-absentia' ? currentLang.examView[63] : getUserData.userData.roleProperties.educationForm == 'magistracy' ? currentLang.examView[64] : 'unknown' }} </span>
+                    </span>
+                    <span v-if="getUserData.userData.userRole == 'enrollee'">
+                        <span v-if="currentLang.language == 'ru'">{{ currentLang.examView[68] }} {{ getUserData.userData.roleProperties.group }}-{{ currentLang.examView[66] }} ({{ getUserData.userData.roleProperties.admissionYear }}, {{ getUserData.userData.roleProperties.educationForm == 'full-time' ? currentLang.examView[34] : getUserData.userData.roleProperties.educationForm == 'in-absentia' ? currentLang.examView[35] : getUserData.userData.roleProperties.educationForm == 'magistracy' ? currentLang.examView[36] : 'unknown' }})</span>
+                        <span v-if="currentLang.language == 'uz_l'">
+                            {{ getUserData.userData.roleProperties.group }}-{{ currentLang.examView[66] }} {{ currentLang.examView[68] }} ({{ getUserData.userData.roleProperties.admissionYear }}, {{ getUserData.userData.roleProperties.educationForm == 'full-time' ? currentLang.examView[34] : getUserData.userData.roleProperties.educationForm == 'in-absentia' ? currentLang.examView[35] : getUserData.userData.roleProperties.educationForm == 'magistracy' ? currentLang.examView[36] : 'unknown' }})
+                        </span>
+                    </span>
+                    <span v-if="getUserData.userData.userRole == 'teacher'">
+                        <span v-if="currentLang.language == 'ru'">{{ currentLang.examView[69] }} {{ currentLang.examView[71] }} "{{ getDepartment(getUserData.userData.roleProperties.department) }}"</span>
+                        <span v-if="currentLang.language == 'uz_l'">"{{ getDepartment(getUserData.userData.roleProperties.department) }}" {{ currentLang.examView[71] }} {{ currentLang.examView[69] }}</span>
+                    </span>
+                    <span v-if="getUserData.userData.userRole == 'employee'">
+                        <span v-if="currentLang.language == 'ru'">{{ currentLang.examView[70] }} {{ currentLang.examView[72] }} "{{ getDepartment(getUserData.userData.roleProperties.department) }}"</span>
+                        <span v-if="currentLang.language == 'uz_l'">"{{ getDepartment(getUserData.userData.roleProperties.department) }}" {{ currentLang.examView[72] }} {{ currentLang.examView[70] }}</span>
+                    </span>
+
+                    <span style="margin-left: 5px; font-weight: bold;">{{ `${getUserData.userData.bio.firstName ? getUserData.userData.bio.firstName : ''} ${getUserData.userData.bio.lastName ? getUserData.userData.bio.lastName : ''} ${getUserData.userData.bio.patronymic ? getUserData.userData.bio.patronymic : ''}` }}</span>
+                    <span style="margin-left: 5px;">({{ getUserData.authData.login }})</span>
+                </span>
+            </div>  
+        </div>
     </div>
 </template>
 
@@ -134,9 +164,9 @@ export default {
     components: {
         SpinnerComponent
     },
-    computed: mapGetters(['getInitializationProcess', 'getUserData', 'getCurrentTickets', 'getCurrentExamID', 'getExams', 'getSubjects', 'getCurrentExam', 'getCurrentModuleExam', 'getCurrentExamsList', 'currentLang']),
+    computed: mapGetters(['getInitializationProcess', 'getUserData', 'getCurrentTickets', 'getCurrentExamID', 'getExams', 'getSubjects', 'getCurrentExam', 'getCurrentModuleExam', 'getCurrentExamsList', 'currentLang', 'getDepartments']),
     methods: {
-        ...mapMutations(['setCurrentExam', 'setExamLanguage', 'setExamState', 'setCurrentExamsList', 'setCurrentModuleExam', 'setExamToken', 'updExamUserStatus', 'setCurrentTickets', 'setCurrentExamID']),
+        ...mapMutations(['setCurrentExam', 'setExamLanguage', 'setExamState', 'setCurrentExamsList', 'setCurrentModuleExam', 'setExamToken', 'updExamUserStatus', 'setCurrentTickets', 'setCurrentExamID', 'setAuthState']),
 
         exitToCoordination(){
             clearInterval(this.timerInterval)
@@ -145,7 +175,27 @@ export default {
             this.setCurrentExamID(undefined)
             this.setCurrentExam(undefined)
             this.setCurrentModuleExam(undefined)
+            this.setAuthState(false)
             this.$router.push('/coordinator')
+        },
+
+        getCourse(year){
+            year = +year
+            let nextEducationYear = false
+            let currentYear = new Date().getFullYear()
+            if(new Date().getMonth()>8){
+                nextEducationYear = true
+            }
+
+            if(nextEducationYear && currentYear-year!=3){
+                return (currentYear-year)+1
+            }
+            return currentYear-year
+        },
+        
+        getDepartment(department){
+            const departmentName= this.getDepartments.find(item => item.id == department) || 'unknown'
+            return departmentName.name.ru || departmentName.id
         },
 
         getTicketsCount(){
@@ -157,6 +207,12 @@ export default {
 
         getSubjectName(id){
             return getSubject(id, this.getSubjects)
+        },
+
+        handleEnterKey(){
+            if(event.code=='Enter' || event.code == 'NumpadEnter'){
+                if(this.language && this.step == 'choise-lang') this.beginExam()
+            }
         },
 
         getLanguageName(lang){
@@ -258,9 +314,12 @@ export default {
         } else {
             // начать экзамен
             this.setExamLanguage(this.getCurrentModuleExam.params.languages[0])
-            this.beginExam()
+            this.language = this.getCurrentModuleExam.params.languages[0]
+            if(this.getCurrentExam.complex.length == 1) this.beginExam()
+            else this.step = 'choise-lang'
         }
 
+        document.addEventListener('keydown', this.handleEnterKey);
         
         socket.on(`client-reset-${this.getUserData.authData.id}`, (data)=>{
             this.setExamState(false)
